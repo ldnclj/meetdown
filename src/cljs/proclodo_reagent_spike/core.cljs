@@ -10,7 +10,8 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:import goog.History))
 
-(defonce state (atom {:event {:name "event"} :saved? false}))
+(defonce state (atom {:event {:name "event"
+                              :description ""} :saved? false}))
 (defonce server-state (atom {}))
 (defonce click-count (atom 0))
 
@@ -40,28 +41,65 @@
 (defn get-value [id]
   (get-in @state [:event id]))
 
-(defn text-input [id label state-local]
+(defn text-input
+  ([id state-local]
+   (text-input id state-local (name id) (if (vector? id) id (vector id)))
+   )
+  ([id state-local label path]
   [row label
    (fn []
      [:input
       {:type "text"
        :class "form-control"
-       :value @state-local
-       :on-change #(reset! state-local (-> % .-target .-value))}])])
+       :value (get-in @state-local path )
+       :on-change #(reset! state-local
+                           (assoc-in @state-local
+                                  path (-> % .-target .-value)))}])]))
+(defn text-area
+  ([id state-local]
+   (text-area id state-local (name id) (if (vector? id) id (vector id)))
+   )
+  ([id state-local label path]
+   [row label
+    (fn []
+      [:textarea
+       {:class "form-control"
+        :value (get-in @state-local path )
+        :on-change #(reset! state-local
+                            (assoc-in @state-local
+                                   path (-> % .-target .-value)))}])]))
+(defn location-input [path state-local]
+  [:div
+   [:hr]
+   [text-input :street-address state-local "Street address" [path :street-address]]
+   [text-input :postcode state-local "Postcode" [path :postcode]]
+   [:hr]
+   ])
 
 (defn new-event-form []
-  (let [event-state (atom "")]
+  (let [event-state (atom {:name "NAME"
+                           :description "DESC"
+                           :location {:street-address "STREET"
+                                      :postcode "POST"}
+                           :date "DATE"
+                           :start-time "START"
+                           :end-time "END"
+                           :speaker "SPEAK"})]
     (fn []
      [:div
-      [text-input :name "Event name" event-state]
+      [text-input :name event-state "Event name" [:name]]
+      [text-area :description event-state]
+      [location-input :location event-state]
+      [text-input :date event-state]
+      [text-input :start-time event-state]
+      [text-input :end-time event-state]
+      [text-input :speaker event-state]
        [:button.btn.btn-default
         {:on-click
          (fn [_]
-           (swap! state assoc-in [:event :name] @event-state)
+           (swap! state assoc :event @event-state)
            (go (>! event-channel @event-state)))}
-        "Create"]
-       [:div
-        [:label (get-in @state [:event :name])]]])))
+        "Create"]])))
 
 (defn counting-component []
   [:div
@@ -84,7 +122,15 @@
    [:div [:a {:href "#/"} "go to the home page"]]])
 
 (defn current-page []
-  [:div [(session/get :current-page)]])
+  (let [current-page (session/get :current-page)]
+    (if (vector? current-page)
+      [:div [(get current-page 0) (get current-page 1)]]
+      [:div [current-page]]
+      ))
+  )
+
+(defn show-event [id]
+  [:div id])
 
 ;; -------------------------
 ;; Routes
@@ -95,6 +141,9 @@
 
 (secretary/defroute "/new-event" []
   (session/put! :current-page #'new-event))
+
+(secretary/defroute "/event/:id" {:as params}
+  (session/put! :current-page [#'show-event (:id params)]))
 
 ;; -------------------------
 ;; History

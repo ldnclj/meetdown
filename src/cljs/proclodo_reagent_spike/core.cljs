@@ -7,43 +7,49 @@
               [goog.history.EventType :as EventType])
     (:import goog.History))
 
-(def state (atom {:event {:name "event"} :saved? false}))
-(def server-state (atom {}))
-(def click-count (atom 0))
+(defonce state (atom {:event {:name "event"} :saved? false}))
+(defonce server-state (atom {}))
+(defonce click-count (atom 0))
+
 ;;--------------------------
 ;; Forms
 (defn row [label input]
   [:div.row
    [:div.col-md-2 [:label label]]
-   [:div.col-md-5 input]])
+   [:div.col-md-5 [input]]])
 
 (defn input [label type id]
   (row label [:input.form-control {:field type :id id}]))
 
-(defn set-value! [id value]
-  (swap! state assoc :saved? false)
-  (swap! state assoc-in [:event id] value))
+(comment
+  (defn set-value! [id value]
+    (swap! state assoc :saved? false)
+    (swap! state assoc-in [:event id] value)))
 
 (defn get-value [id]
   (get-in @state [:event id]))
 
-(defn text-input [id label]
+(defn text-input [id label state-local]
   [row label
-   [:input
-     {:type "text"
+   (fn []
+     [:input
+      {:type "text"
        :class "form-control"
-       :value (get-value id)
-       :on-change #(set-value! id (-> % .-target .-value))}]])
+       :value @state-local
+       :on-change #(reset! state-local (-> % .-target .-value))}])])
 
 (defn new-event-form []
-  [:div
-   (text-input :name "Event name")
-   [:button.btn.btn-default
-    {:on-click
-     #(swap! server-state assoc-in [:event :name] (get-in @state [:event :name]))}
-    "Create"]
-   [:div
-    [:label (get-in @server-state [:event :name])]]])
+  (let [event-state (atom "")]
+    (fn []
+     [:div
+      [text-input :name "Event name" event-state]
+       [:button.btn.btn-default
+        {:on-click
+         (fn [_]
+           (swap! state assoc-in [:event :name] @event-state))}
+        "Create"]
+       [:div
+        [:label (get-in @state [:event :name])]]])))
 
 (defn counting-component []
   [:div
@@ -61,7 +67,7 @@
 
 (defn new-event []
   [:div [:h2 "About proclodo-reagent-spike"]
-   (new-event-form)
+   [new-event-form]
    [:div [:a {:href "#/"} "go to the home page"]]])
 
 (defn current-page []

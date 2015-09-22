@@ -1,15 +1,26 @@
 (ns proclodo-reagent-spike.core
-    (:require [reagent.core :as reagent :refer [atom]]
-              [reagent.session :as session]
-              [secretary.core :as secretary :include-macros true]
-              [reagent-forms.core :as forms]
-              [goog.events :as events]
-              [goog.history.EventType :as EventType])
-    (:import goog.History))
+  (:require [reagent.core :as reagent :refer [atom]]
+            [reagent.session :as session]
+            [secretary.core :as secretary :include-macros true]
+            [reagent-forms.core :as forms]
+            [goog.events :as events]
+            [goog.history.EventType :as EventType]
+            [cljs.core.async :as async
+             :refer [<! >! chan close! sliding-buffer put! alts!]])
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
+  (:import goog.History))
 
 (defonce state (atom {:event {:name "event"} :saved? false}))
 (defonce server-state (atom {}))
 (defonce click-count (atom 0))
+
+(defonce event-channel (chan))
+
+(defonce save-event
+  (go-loop []
+    (let [event (<! event-channel)]
+     (swap! server-state assoc :event event)
+     (recur))))
 
 ;;--------------------------
 ;; Forms
@@ -46,7 +57,8 @@
        [:button.btn.btn-default
         {:on-click
          (fn [_]
-           (swap! state assoc-in [:event :name] @event-state))}
+           (swap! state assoc-in [:event :name] @event-state)
+           (go (>! event-channel @event-state)))}
         "Create"]
        [:div
         [:label (get-in @state [:event :name])]]])))
@@ -68,6 +80,7 @@
 (defn new-event []
   [:div [:h2 "About proclodo-reagent-spike"]
    [new-event-form]
+   [:div [:p "Server state " (:event @server-state)]]
    [:div [:a {:href "#/"} "go to the home page"]]])
 
 (defn current-page []

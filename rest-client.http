@@ -1,0 +1,9 @@
+# -*- restclient -*-
+
+# post on event
+POST http://localhost:3449/event
+Content-Type: application/json
+
+{
+"event": "testing this event"
+}

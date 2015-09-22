@@ -17,6 +17,7 @@
                  [prone "0.8.2"]
                  [compojure "1.4.0"]
                  [hiccup "1.0.5"]
+                 [ring/ring-json "0.3.1"]
                  [environ "1.0.0"]
                  [org.clojure/clojurescript "1.7.107" :scope "provided"]
                  [secretary "1.2.3"]

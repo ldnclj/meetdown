@@ -1,7 +1,8 @@
 (ns proclodo-reagent-spike.handler
-  (:require [compojure.core :refer [GET defroutes]]
+  (:require [compojure.core :refer [GET POST defroutes]]
             [compojure.route :refer [not-found resources]]
-            [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
+            [ring.middleware.defaults :refer [api-defaults wrap-defaults]]
+            [ring.middleware.json :refer [wrap-json-params wrap-json-response]]
             [hiccup.core :refer [html]]
             [hiccup.page :refer [include-js include-css]]
             [prone.middleware :refer [wrap-exceptions]]
@@ -26,9 +27,10 @@
 
 (defroutes routes
   (GET "/" [] home-page)
+  (POST "/event" [event] (str "Created event is = " event))
   (resources "/")
   (not-found "Not Found"))
 
 (def app
-  (let [handler (wrap-defaults #'routes site-defaults)]
+  (let [handler (->  #'routes (wrap-defaults api-defaults) wrap-json-params wrap-json-response)]
     (if (env :dev) (-> handler wrap-exceptions wrap-reload) handler)))

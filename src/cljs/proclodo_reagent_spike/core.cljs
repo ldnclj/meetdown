@@ -19,7 +19,7 @@
 (defonce save-event
   (go-loop []
     (let [event (<! event-channel)]
-     (swap! server-state assoc :event event)
+     (swap! server-state assoc :event event) ;; TODO replace with a call to server
      (recur))))
 
 ;;--------------------------

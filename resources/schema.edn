@@ -1,89 +1,89 @@
 ;;location
-{
- :db/id #db/id[:db.part/db]
- :db/ident :location/postCode
- :db/cardinality :db.cardinality/one
- :db/valueType :db.type/string
- :db.install/_attribute :db.part/db
- }
-{
- :db/id #db/id[:db.part/db]
- :db/ident :location/description
- :db/cardinality :db.cardinality/one
- :db/valueType :db.type/string
- :db.install/_attribute :db.part/db
- }
+[{
+  :db/id                 #db/id[:db.part/db]
+  :db/ident              :location/postCode
+  :db/cardinality        :db.cardinality/one
+  :db/valueType          :db.type/string
+  :db.install/_attribute :db.part/db
+  }
+ {
+  :db/id                 #db/id[:db.part/db]
+  :db/ident              :location/description
+  :db/cardinality        :db.cardinality/one
+  :db/valueType          :db.type/string
+  :db.install/_attribute :db.part/db
+  }
 
-;;user
-{
- :db/id #db/id[:db.part/db]
- :db/ident :user/firstname
- :db/cardinality :db.cardinality/one
- :db/valueType :db.type/string
- :db.install/_attribute :db.part/db
- }
-{
- :db/id #db/id[:db.part/db]
- :db/ident :user/surname
- :db/cardinality :db.cardinality/one
- :db/valueType :db.type/string
- :db.install/_attribute :db.part/db
- }
-{
- :db/id #db/id[:db.part/db]
- :db/ident :user/email
- :db/cardinality :db.cardinality/one
- :db/valueType :db.type/string
- :db.install/_attribute :db.part/db
- }
+ ;;user
+ {
+  :db/id                 #db/id[:db.part/db]
+  :db/ident              :user/firstname
+  :db/cardinality        :db.cardinality/one
+  :db/valueType          :db.type/string
+  :db.install/_attribute :db.part/db
+  }
+ {
+  :db/id                 #db/id[:db.part/db]
+  :db/ident              :user/surname
+  :db/cardinality        :db.cardinality/one
+  :db/valueType          :db.type/string
+  :db.install/_attribute :db.part/db
+  }
+ {
+  :db/id                 #db/id[:db.part/db]
+  :db/ident              :user/email
+  :db/cardinality        :db.cardinality/one
+  :db/valueType          :db.type/string
+  :db.install/_attribute :db.part/db
+  }
 
-;;event
-{
- :db/id #db/id[:db.part/db]
- :db/ident :event/name
- :db/cardinality :db.cardinality/one
- :db/valueType :db.type/string
- :db.install/_attribute :db.part/db
- }
-{
- :db/id #db/id[:db.part/db]
- :db/ident :event/description
- :db/cardinality :db.cardinality/one
- :db/valueType :db.type/string
- :db.install/_attribute :db.part/db
- }
-{
- :db/id #db/id[:db.part/db]
- :db/ident :event/location
- :db/cardinality :db.cardinality/one
- :db/valueType :db.type/ref
- :db.install/_attribute :db.part/db
- }
-{
- :db/id #db/id[:db.part/db]
- :db/ident :event/date
- :db/cardinality :db.cardinality/one
- :db/valueType :db.type/string
- :db.install/_attribute :db.part/db
- }
-{
- :db/id #db/id[:db.part/db]
- :db/ident :event/startTime
- :db/cardinality :db.cardinality/one
- :db/valueType :db.type/string
- :db.install/_attribute :db.part/db
- }
-{
- :db/id #db/id[:db.part/db]
- :db/ident :event/endTime
- :db/cardinality :db.cardinality/one
- :db/valueType :db.type/string
- :db.install/_attribute :db.part/db
- }
-{
- :db/id #db/id[:db.part/db]
- :db/ident :event/speaker
- :db/cardinality :db.cardinality/one
- :db/valueType ::db.type/string
- :db.install/_attribute :db.part/db
- }
+ ;;event
+ {
+  :db/id                 #db/id[:db.part/db]
+  :db/ident              :event/name
+  :db/cardinality        :db.cardinality/one
+  :db/valueType          :db.type/string
+  :db.install/_attribute :db.part/db
+  }
+ {
+  :db/id                 #db/id[:db.part/db]
+  :db/ident              :event/description
+  :db/cardinality        :db.cardinality/one
+  :db/valueType          :db.type/string
+  :db.install/_attribute :db.part/db
+  }
+ {
+  :db/id                 #db/id[:db.part/db]
+  :db/ident              :event/location
+  :db/cardinality        :db.cardinality/one
+  :db/valueType          :db.type/ref
+  :db.install/_attribute :db.part/db
+  }
+ {
+  :db/id                 #db/id[:db.part/db]
+  :db/ident              :event/date
+  :db/cardinality        :db.cardinality/one
+  :db/valueType          :db.type/string
+  :db.install/_attribute :db.part/db
+  }
+ {
+  :db/id                 #db/id[:db.part/db]
+  :db/ident              :event/startTime
+  :db/cardinality        :db.cardinality/one
+  :db/valueType          :db.type/string
+  :db.install/_attribute :db.part/db
+  }
+ {
+  :db/id                 #db/id[:db.part/db]
+  :db/ident              :event/endTime
+  :db/cardinality        :db.cardinality/one
+  :db/valueType          :db.type/string
+  :db.install/_attribute :db.part/db
+  }
+ {
+  :db/id                 #db/id[:db.part/db]
+  :db/ident              :event/speaker
+  :db/cardinality        :db.cardinality/one
+  :db/valueType          :db.type/string
+  :db.install/_attribute :db.part/db
+  }]

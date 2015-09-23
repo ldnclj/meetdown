@@ -1,10 +1,12 @@
 # ldnclj-datomic
 
-A Clojure library designed to ... well, that part is up to you.
+Spike for trying out Datomic.
+
+Json -> EDN schema parser here http://p14n.github.io/edn-schema-visualiser/
 
 ## Usage
 
-FIXME
+TODO
 
 ## License
 

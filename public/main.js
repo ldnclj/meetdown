@@ -61142,30 +61142,31 @@ goog.require("cljs.core.async");
 goog.require("cognitect.transit");
 goog.require("goog.events");
 meetdown.client.packer = taoensso.sente.packers.transit.get_flexi_packer.call(null, new cljs.core.Keyword(null, "edn", "edn", 1317840885));
-var map__19222_19224 = taoensso.sente.make_channel_socket_BANG_.call(null, "/chsk", new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null, "type", "type", 1174270348), new cljs.core.Keyword(null, "auto", "auto", -566279492)], null));
-var map__19222_19225__$1 = (!(map__19222_19224 == null) ? map__19222_19224.cljs$lang$protocol_mask$partition0$ & 64 || map__19222_19224.cljs$core$ISeq$ ? true : false : false) ? cljs.core.apply.call(null, cljs.core.hash_map, map__19222_19224) : map__19222_19224;
-var chsk_19226 = cljs.core.get.call(null, map__19222_19225__$1, new cljs.core.Keyword(null, "chsk", "chsk", -863703081));
-var ch_recv_19227 = cljs.core.get.call(null, map__19222_19225__$1, new cljs.core.Keyword(null, "ch-recv", "ch-recv", -990916861));
-var send_fn_19228 = cljs.core.get.call(null, map__19222_19225__$1, new cljs.core.Keyword(null, "send-fn", "send-fn", 351002041));
-var state_19229 = cljs.core.get.call(null, map__19222_19225__$1, new cljs.core.Keyword(null, "state", "state", -1988618099));
-meetdown.client.chsk = chsk_19226;
-meetdown.client.ch_chsk = ch_recv_19227;
-meetdown.client.chsk_send_BANG_ = send_fn_19228;
-meetdown.client.chsk_state = state_19229;
+var map__19272_19274 = taoensso.sente.make_channel_socket_BANG_.call(null, "/chsk", new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null, "type", "type", 1174270348), new cljs.core.Keyword(null, "auto", "auto", -566279492), new cljs.core.Keyword(null, "packer", "packer", 66077544), meetdown.client.packer], null));
+var map__19272_19275__$1 = (!(map__19272_19274 == null) ? map__19272_19274.cljs$lang$protocol_mask$partition0$ & 64 || map__19272_19274.cljs$core$ISeq$ ? true : false : false) ? cljs.core.apply.call(null, cljs.core.hash_map, map__19272_19274) : map__19272_19274;
+var chsk_19276 = cljs.core.get.call(null, map__19272_19275__$1, new cljs.core.Keyword(null, "chsk", "chsk", -863703081));
+var ch_recv_19277 = cljs.core.get.call(null, map__19272_19275__$1, new cljs.core.Keyword(null, "ch-recv", "ch-recv", -990916861));
+var send_fn_19278 = cljs.core.get.call(null, map__19272_19275__$1, new cljs.core.Keyword(null, "send-fn", "send-fn", 351002041));
+var state_19279 = cljs.core.get.call(null, map__19272_19275__$1, new cljs.core.Keyword(null, "state", "state", -1988618099));
+meetdown.client.chsk = chsk_19276;
+meetdown.client.ch_chsk = ch_recv_19277;
+meetdown.client.chsk_send_BANG_ = send_fn_19278;
+meetdown.client.chsk_state = state_19279;
 meetdown.client.r = cognitect.transit.reader.call(null, new cljs.core.Keyword(null, "json", "json", 1279968570));
+meetdown.client.db_function = function meetdown$client$db_function(type, source, target) {
+  return function(_) {
+    var txt = goog.dom.getElement(source).value;
+    return meetdown.client.chsk_send_BANG_.call(null, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [type, cognitect.transit.read.call(null, meetdown.client.r, txt)], null), 3E3, function(txt) {
+      return function(reply) {
+        return goog.dom.getElement(target).innerHTML = reply;
+      };
+    }(txt));
+  };
+};
 meetdown.client.main = function meetdown$client$main() {
-  var insertbutton = goog.dom.getElement("insertbutton");
-  var inserttext = goog.dom.getElement("inserttext");
-  var insertresult = goog.dom.getElement("insertresult");
-  return goog.events.listen(insertbutton, "click", function(insertbutton, inserttext, insertresult) {
-    return function(_) {
-      var txt = inserttext.value;
-      return meetdown.client.chsk_send_BANG_.call(null, new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword("meetdown", "insert", "meetdown/insert", -1714466020), cognitect.transit.read.call(null, meetdown.client.r, txt)], null), 3E3, function(txt, insertbutton, inserttext, insertresult) {
-        return function(reply) {
-          return insertresult.innerHTML = reply;
-        };
-      }(txt, insertbutton, inserttext, insertresult));
-    };
-  }(insertbutton, inserttext, insertresult));
+  goog.events.listen(goog.dom.getElement("insertbutton1"), "click", meetdown.client.db_function.call(null, new cljs.core.Keyword("meetdown", "insert", "meetdown/insert", -1714466020), "inserttext1", "insertresult1"));
+  goog.events.listen(goog.dom.getElement("insertbutton2"), "click", meetdown.client.db_function.call(null, new cljs.core.Keyword("meetdown", "insert", "meetdown/insert", -1714466020), "inserttext2", "insertresult2"));
+  goog.events.listen(goog.dom.getElement("insertbutton3"), "click", meetdown.client.db_function.call(null, new cljs.core.Keyword("meetdown", "insert", "meetdown/insert", -1714466020), "inserttext3", "insertresult3"));
+  return goog.events.listen(goog.dom.getElement("querybutton"), "click", meetdown.client.db_function.call(null, new cljs.core.Keyword("meetdown", "query", "meetdown/query", 1741694897), "querytext", "queryresult"));
 };
 meetdown.client.main.call(null);

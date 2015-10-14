@@ -13,9 +13,7 @@
 (def packer (sente-transit/get-flexi-packer :edn))
 
 (let [{:keys [chsk ch-recv send-fn state]}
-      (sente/make-channel-socket! "/chsk"
-                                  {:type :auto
-                                   })]                      ;:packer packer
+      (sente/make-channel-socket! "/chsk" {:type :auto :packer packer})]                      ;
      (def chsk       chsk)
      (def ch-chsk    ch-recv) ; ChannelSocket's receive channel
      (def chsk-send! send-fn) ; ChannelSocket's send API fn
@@ -24,18 +22,20 @@
 
 (def r (transit/reader :json))
 
+(defn db-function [type source target]
+  (fn [_]
+    (let [txt (.-value (dom/getElement source))]
+      (chsk-send! [type (transit/read r txt)]
+                  3000
+                  (fn [reply]
+                    (set! (.-innerHTML (dom/getElement target)) reply))))))
+
 (defn main
   []
-  (let [insertbutton  (dom/getElement "insertbutton")
-        inserttext (dom/getElement "inserttext")
-        insertresult (dom/getElement "insertresult")]
-
-    (events/listen insertbutton "click"
-                   (fn [_]
-                     (let [txt (.-value inserttext)]
-                       (chsk-send! [:meetdown/insert (transit/read r txt)]
-                                   3000
-                                   (fn [reply]
-                                     (set! (.-innerHTML insertresult) reply))))))))
+  (do
+    (events/listen (dom/getElement "insertbutton1") "click" (db-function :meetdown/insert "inserttext1" "insertresult1"))
+    (events/listen (dom/getElement "insertbutton2") "click" (db-function :meetdown/insert "inserttext2" "insertresult2"))
+    (events/listen (dom/getElement "insertbutton3") "click" (db-function :meetdown/insert "inserttext3" "insertresult3"))
+    (events/listen (dom/getElement "querybutton") "click" (db-function :meetdown/query "querytext" "queryresult"))))
 
 (main)

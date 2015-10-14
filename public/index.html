@@ -3,14 +3,81 @@
 <header>
     <meta charset="utf-8" />
     <title>Meetdown</title>
+    <style>
+        .dbform {
+         margin: 10px;
+         height: 100px;
+         display: flex;
+         flex-direction: row;
+        }
+        .dbform textarea {
+         flex-grow: 1;
+        }
+        .dbform span {
+        margin: 20px;
+        width: 200px;
+        }
+        .dbform span.result {
+         width: 400px;
+        }
+
+
+    </style>
 </header>
 <body>
-<div>
-    <span>Try inserting some data:</span>
-    <textarea id="inserttext">{"user/firstname":"Dean","user/surname":"Chapman","user/email":"dean@p14n.com"}</textarea>
-    <button id="insertbutton">Insert</button>
-    <span id="insertresult"></span>
+<div class="dbform">
+    <span>Try inserting a user:</span>
+    <textarea id="inserttext1">
+        {
+         ":user/firstname":"Dean",
+         ":user/surname":"Chapman",
+         ":user/email":"dean@p14n.com"
+        }</textarea>
+    <button id="insertbutton1">Insert</button>
+    <span class="result" id="insertresult1"></span>
+</div>
+<div class="dbform">
+    <span>And an event:</span>
+    <textarea id="inserttext2">
+        {
+         ":event/name":"Proclodo",
+         ":event/description":"A clojure thing in a place, with pizza",
+         ":event/date":"2015-10-15",
+         ":event/startTime":"6:00",
+         ":event/endTime":"9:00"
+        }
+    </textarea>
+    <button id="insertbutton2">Insert</button>
+    <span class="result" id="insertresult2"></span>
+</div>
+<div class="dbform">
+    <span>And link the two (using lookup refs):</span>
+    <textarea id="inserttext3">
+        {
+         ":event/attendees": {
+           ":db/id":[":user/email","dean@p14n.com"]
+         },
+         ":db/id":[":event/name","Proclodo"]
+        }
+    </textarea>
+    <button id="insertbutton3">Insert</button>
+    <span class="result" id="insertresult3"></span>
+</div>
+<div class="dbform">
+    <span>And pull back the data (using pull query pattern and a lookup ref):</span>
+    <textarea id="querytext">
+        {
+         ":pattern" : [
+           ":event/name",{
+             ":event/attendees": [":user/email"]
+           }],
+         ":lookup": [":event/name","Proclodo"]
+        }
+    </textarea>
+    <button id="querybutton">Query</button>
+    <span class="result" id="queryresult"></span>
 </div>
 <script src="main.js"></script>
 </body>
 </html>
+

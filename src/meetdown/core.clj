@@ -11,7 +11,7 @@
   (-> (fn []
         (ys/->dep
           (yc/->component {:dburi    "datomic:mem://meetdown"
-                           :http-kit {}})))
+                           :http-kit {:port 3000}})))
 
       (ys/named :config)))
 
@@ -19,33 +19,22 @@
 (defn datomic-connection-component []
   (-> (fn []
         (c/mlet [uri (ys/ask :config :dburi)]
-                (ys/->dep
-                  (let [conn (d/setup-and-connect-to-db uri)]
-                    (yc/->component conn
-                                    (fn []
-                                      (d/close-db)))))))
+          (ys/->dep
+           (let [conn (d/setup-and-connect-to-db uri)]
+             (yc/->component conn
+                             (fn []
+                               (d/close-db)))))))
 
       (ys/named :db-conn)))
 
-(defn http-kit-component []
-  (-> (fn []
-        (c/mlet [http-kit-opts (ys/ask :config :http-kit)
-                 db-conn (ys/ask :db-conn)]
-                (ys/->dep
-                  (let [stop-server! (h/start-server! (d/create-msg-handler db-conn) http-kit-opts)]
-                    (yc/->component http-kit-opts
-                                    (fn []
-                                      (stop-server!)))))))
-      (ys/named :http-kit)))
+(defn make-system []
+  (-> (ys/make-system #{(dev-config)
+                     (datomic-connection-component)
+                     (h/m-server)})
 
+      (yc/with-system-put-to 'user/foo-system)))
 
+(defn -main []
+  (y/set-system-fn! 'meetdown.core/make-system)
 
-(defn create-dev-system []
-  (y/set-system-fn!
-    (fn []
-      (ys/make-system #{(dev-config)
-                        (datomic-connection-component)
-                        (http-kit-component)}))))
-
-;(y/start!)
-;(y/stop!)
+  (y/start!))

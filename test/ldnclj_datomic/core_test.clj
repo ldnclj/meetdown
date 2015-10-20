@@ -1,6 +1,6 @@
 (ns ldnclj-datomic.core-test
   (:require [clojure.test :refer :all]
-            [ldnclj-datomic.core :refer :all]))
+            #_[ldnclj-datomic.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

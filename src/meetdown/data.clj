@@ -30,42 +30,17 @@
 (defn to-ent "Takes a db id and connection and returns the entity"
   [conn id] (-> conn d/db (d/entity id)))
 
-(defmulti msg-handler :id) ; Dispatch on event-id
+(defn get-events [db-conn]
+  (let [db (d/db db-conn)]
+    (d/pull-many db [:*]
+                 (->> (d/q '{:find [?event-id]
+                             :where [[?event-id :event/name]]}
+                           db)
+                      (map first)))))
 
 
-(defn create-msg-handler [dbconn]
-  (fn [{:as ev-msg :keys [?reply-fn]}]
-    (println (str "Message: " ev-msg))
-    (try
-      (msg-handler ev-msg dbconn)
-      (catch Exception e
-        (do (println (str "Caught: " e))
-            (clojure.stacktrace/print-stack-trace e)
-            (when ?reply-fn (?reply-fn (.getMessage e))))))))
+(comment
+  (get-events (:db-conn user/foo-system))
 
-(do
-  (defmethod msg-handler :default ; Fallback
-    [{:keys [event ?reply-fn]} _]
-    (do
-      (println "Unhandled event: " event)
-      (when ?reply-fn
-        (?reply-fn {:uhandled event}))))
-
-  (defmethod msg-handler :meetdown/insert
-    [{:keys [?reply-fn ?data]} dbconn]
-    (println "Insert: " ?data)
-    (println "Insert id: " (?data ":db/id"))
-    (let [db-id (create-entity dbconn ?data)
-          inserted (d/touch (to-ent dbconn db-id))]
-      (when ?reply-fn
-        (?reply-fn inserted))))
-
-  (defmethod msg-handler :meetdown/query
-    [{:keys [?reply-fn ?data]} dbconn]
-    (println "Query: " ?data)
-    (println "Pattern: " (?data ":pattern"))
-    (let [pattern (?data ":pattern")
-          lookup (?data ":lookup")
-          result (d/pull (d/db dbconn) pattern lookup)]
-      (when ?reply-fn
-        (?reply-fn result)))))
+  (d/transact (:db-conn user/foo-system) [{:db/id #db/id[:db.part/user]
+                                           :event/name "hello"}]))

@@ -19,7 +19,7 @@
           (POST "/q" []
                 (fn [{req-body :body-params}]
                   {:body (case (:type req-body)
-                           :get-events (data/get-events db-conn)) })))
+                           :get-events (data/get-events db-conn))})))
 
          (wrap-restful-format :formats [:edn :transit-json])
          (rmd/wrap-defaults (-> rmd/site-defaults

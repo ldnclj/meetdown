@@ -24,13 +24,12 @@
              (yc/->component conn
                              (fn []
                                (d/close-db)))))))
-
       (ys/named :db-conn)))
 
 (defn make-system []
   (-> (ys/make-system #{(dev-config)
-                     (datomic-connection-component)
-                     (h/m-server)})
+                        (datomic-connection-component)
+                        (h/m-server)})
 
       (yc/with-system-put-to 'user/foo-system)))
 
@@ -38,3 +37,13 @@
   (y/set-system-fn! 'meetdown.core/make-system)
 
   (y/start!))
+
+(comment
+  ;; Start system by running (-main). Use (y/reload!) to reload.
+  ;; To create data run transact in comment in data.clj
+  ;; To fetch events -
+  ;;    curl -X POST -d "{:type :get-events}" http://localhost:3000/q --header "Content-Type:application/edn"
+
+
+
+  )

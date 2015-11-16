@@ -43,4 +43,6 @@
   (get-events (:db-conn user/foo-system))
 
   (d/transact (:db-conn user/foo-system) [{:db/id #db/id[:db.part/user]
-                                           :event/name "hello"}]))
+                                           :event/name "ProCloDo Dojo 17 Novemnber 2015"}])
+
+  )

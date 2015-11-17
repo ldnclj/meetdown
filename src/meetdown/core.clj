@@ -15,7 +15,6 @@
 
       (ys/named :config)))
 
-
 (defn datomic-connection-component []
   (-> (fn []
         (c/mlet [uri (ys/ask :config :dburi)]

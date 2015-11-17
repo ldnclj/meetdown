@@ -10,16 +10,20 @@
             [ring.middleware.defaults :as rmd]
             [meetdown.data :as data]))
 
+(defn- handle-query
+  [db-conn]
+  (fn [{req-body :body-params}]
+    {:body (case (:type req-body)
+             :get-events (data/get-events db-conn)
+             :create-event (data/create-entity db-conn (:txn-data req-body)))}))
+
 (defn m-handler []
   (c/mlet [db-conn (ys/ask :db-conn)]
     (ys/->dep
-
      (-> (routes
           (files "/")
           (POST "/q" []
-                (fn [{req-body :body-params}]
-                  {:body (case (:type req-body)
-                           :get-events (data/get-events db-conn))})))
+                (handle-query db-conn)))
 
          (wrap-restful-format :formats [:edn :transit-json])
          (rmd/wrap-defaults (-> rmd/site-defaults
@@ -33,3 +37,9 @@
            (http-kit/start-server! {:handler handler
                                     :server-opts http-kit-opts}))))
       (ys/named :web-server)))
+
+(comment
+
+
+
+  )

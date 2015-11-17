@@ -27,7 +27,7 @@
 
 (defroutes routes
   (GET "/" [] home-page)
-  (POST "/event" [event] (str "Created event is = " event))
+  (POST "/q" request (println "Request received:" (slurp (.bytes (:body request)))))
   (resources "/")
   (not-found "Not Found"))
 

@@ -27,7 +27,11 @@
 
 (defroutes routes
   (GET "/" [] home-page)
-  (POST "/q" request (println "Request received:" (slurp (.bytes (:body request)))))
+  (POST "/q" request
+    (do (println "Request received:" (:params request))
+        (case (:type (:params request))
+          "create-event" {:body (assoc (:event (:params request)) :id 1234)}
+          (println "Unknown event type" (:type (:params request))))))
   (resources "/")
   (not-found "Not Found"))
 

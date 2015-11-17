@@ -20,11 +20,13 @@
 
 (defn actual-save-event [event]               ;; TODO: refactor the name of this function and save-event to make sense.
   (ajax/POST "/q"
-        {:params       {:type :create-event
-                        :event event}
-         :handler      (fn [response] (println "OK" response))
-         :error-hander (fn [& args] (println "NOT OK" args))
-         :format       (ajax/json-request-format)})
+             {:params          {:type  :create-event
+                                :event event}
+              :handler         (fn [response]
+                                 (set! (.-hash (.-location js/window)) (str "/event/" (response "id"))))
+              :error-hander    (fn [& args] (println "NOT OK" args))
+              :format          (ajax/json-request-format)
+              :response-format (ajax/json-response-format)})
   (swap! server-state assoc-in :event event)) ;; TODO replace with a call to server)
 
 (defonce save-event

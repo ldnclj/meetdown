@@ -15,7 +15,8 @@
   (fn [{req-body :body-params}]
     {:body (case (:type req-body)
              :get-events (data/get-events db-conn)
-             :create-event (data/create-entity db-conn (:txn-data req-body)))}))
+             :create-event (data/create-entity db-conn (:txn-data req-body)))
+             :create-user  (data/create-entity db-conn (:txn-data req-body))}))
 
 (defn m-handler []
   (c/mlet [db-conn (ys/ask :db-conn)]
@@ -40,6 +41,8 @@
 
 (comment
 
+  (data/create-entity user/foo-system (:txn-data {:event/name "New event-2"}))
 
+  (data/create-entity db-conn (:txn-data req-body))
 
   )

@@ -27,7 +27,11 @@
 
 (defroutes routes
   (GET "/" [] home-page)
-  (POST "/event" [event] (str "Created event is = " event))
+  (POST "/q" request
+    (do (println "Request received:" (:params request))
+        (case (:type (:params request))
+          "create-event" {:body (assoc (:event (:params request)) :id 1234)}
+          (println "Unknown event type" (:type (:params request))))))
   (resources "/")
   (not-found "Not Found"))
 

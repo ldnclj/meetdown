@@ -6,7 +6,8 @@
             [goog.events :as events]
             [goog.history.EventType :as EventType]
             [cljs.core.async :as async
-             :refer [<! >! chan close! sliding-buffer put! alts!]])
+             :refer [<! >! chan close! sliding-buffer put! alts!]]
+            [ajax.core :as ajax])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:import goog.History))
 
@@ -17,11 +18,22 @@
 
 (defonce event-channel (chan))
 
+(defn actual-save-event [event]               ;; TODO: refactor the name of this function and save-event to make sense.
+  (ajax/POST "/q"
+             {:params          {:type  :create-event
+                                :event event}
+              :handler         (fn [response]
+                                 (set! (.-hash (.-location js/window)) (str "/event/" (response "id"))))
+              :error-hander    (fn [& args] (println "NOT OK" args))
+              :format          (ajax/json-request-format)
+              :response-format (ajax/json-response-format)})
+  (swap! server-state assoc-in :event event)) ;; TODO replace with a call to server)
+
 (defonce save-event
   (go-loop []
     (let [event (<! event-channel)]
-     (swap! server-state assoc :event event) ;; TODO replace with a call to server
-     (recur))))
+      (actual-save-event event)
+      (recur))))
 
 ;;--------------------------
 ;; Forms

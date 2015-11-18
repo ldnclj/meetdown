@@ -1,5 +1,7 @@
 # ldnclj-datomic
 
+## Status
+
 With apologies to Dean the team felt that the server should not
 directly expose Datomic queries so that it's easier to wrap security
 and validation around the requests.

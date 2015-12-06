@@ -1,22 +1,38 @@
 (ns proclodo-reagent-spike.core
-  (:require [reagent.core :as reagent :refer [atom]]
-            [reagent.session :as session]
-            [secretary.core :as secretary :include-macros true]
-            [reagent-forms.core :as forms]
-            [goog.events :as events]
-            [goog.history.EventType :as EventType]
+  (:require [ajax.core :as ajax]
             [cljs.core.async :as async
              :refer [<! >! chan close! sliding-buffer put! alts!]]
-            [ajax.core :as ajax])
+            [clojure.string :as str]
+            [goog.events :as events]
+            [goog.history.EventType :as EventType]
+            [reagent.core :as reagent :refer [atom]]
+            [reagent.session :as session]
+            [secretary.core :as secretary :include-macros true])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:import goog.History))
 
 (defonce state (atom {:event {:name "event"
-                              :description ""} :saved? false}))
+                           :description ""
+                           :location {:street-address ""
+                                      :postcode ""}
+                           :date ""
+                           :start-time ""
+                           :end-time ""
+                           :speaker ""} :saved? false}))
 (defonce server-state (atom {}))
 (defonce click-count (atom 0))
 
 (defonce event-channel (chan))
+
+(defn create-event-link
+  "Render the create event link"
+  []
+  [:div [:a {:href "#/new-event"} "Create event"]])
+
+(defn home-page-link
+  "Render the home page link"
+  []
+  [:div [:a {:href "#/"} "Go to the Home Page"]])
 
 (defn post-event
   "Post a new event to the server."
@@ -28,8 +44,7 @@
                                  (set! (.-hash (.-location js/window)) (str "/event/" (response "id"))))
               :error-hander    (fn [& args] (println "NOT OK" args))
               :format          (ajax/json-request-format)
-              :response-format (ajax/json-response-format)})
-  (swap! server-state assoc-in :event event))
+              :response-format (ajax/json-response-format)}))
 
 (defonce save-event
   (go-loop []
@@ -51,29 +66,35 @@
   [label type id]
   (row label [:input.form-control {:field type :id id}]))
 
+(defn id->label
+  "Convert element id to label"
+  [id]
+  (str/capitalize (str/replace (name id) "-" " ")))
+
 (defn text-input
   "Render a text input field."
   ([id state-local]
-   (let [label (name id)
-         placeholder label
-         path (if (vector? id) id (vector id))]
-     (text-input id state-local label path placeholder)))
+   (let [label (id->label id)]
+     (text-input id state-local label)))
+  ([id state-local label]
+   (let [path (if (vector? id) id (vector id))]
+     (text-input id state-local label path)))
   ([id state-local label path] (text-input id state-local label path label))
   ([id state-local label path placeholder]
-  [row label
-   (fn []
-     [:input
-      {:type :text
-       :placeholder placeholder
-       :class "form-control"
-       :value (get-in @state-local path)
-       :on-change #(reset! state-local
-                           (assoc-in @state-local
-                                  path (-> % .-target .-value)))}])]))
+   [row label
+    (fn []
+      [:input
+       {:type :text
+        :placeholder placeholder
+        :class "form-control"
+        :value (get-in @state-local path)
+        :on-change #(reset! state-local
+                            (assoc-in @state-local
+                                      path (-> % .-target .-value)))}])]))
 (defn text-area
   "Render a text area."
   ([id state-local]
-   (let [label (name id)
+   (let [label (id->label id)
          path (if (vector? id) id (vector id))]
      (text-area id state-local label path)))
   ([id state-local label path] (text-area id state-local label path label))
@@ -130,6 +151,7 @@
          {:on-click
           (fn [_]
             (swap! state assoc :event @event-state)
+            (swap! state assoc :saved? true)
             (go (>! event-channel @event-state)))}
          "Create"]]])))
 
@@ -152,8 +174,8 @@
                  :flex-direction :column
                  :align-items :center}}
    [:h2 "Welcome to proclodo-reagent-spike"]
-   (counting-component)
-   [:div [:a {:href "#/new-event"} "create event"]]])
+   [counting-component]
+   [create-event-link]])
 
 (defn new-event
   "Render the new event page"
@@ -161,10 +183,10 @@
   [:div {:style {:display :flex
                  :flex-direction :column
                  :align-items :center}}
-   [:h2 "About proclodo-reagent-spike"]
+   [:h2 "Add a new event"]
    [new-event-form]
    [:div [:p "Server state " (:event @server-state)]]
-   [:div [:a {:href "#/"} "go to the home page"]]])
+   [home-page-link]])
 
 (defn current-page
   "Render the current page."
@@ -172,13 +194,28 @@
   (let [current-page (session/get :current-page)]
     (if (vector? current-page)
       [:div [(get current-page 0) (get current-page 1)]]
-      [:div [current-page]]
-      )))
+      [:div [current-page]])))
+
+(defn event-row
+  "Render a row for an event attribute"
+  [[key text]]
+  (if-not (map? text)
+    [:div [:label (name key) ":"] " " text]
+    (for [attribute text]
+      (event-row attribute))))
 
 (defn show-event
   "Render a page showing an existing event"
   [id]
-  [:div id])
+  [:div {:style {:display :flex
+                 :flex-direction :column
+                 :align-items :center}}
+   [:h2 "Event : " id]
+   [:div
+    (for [attribute (:event @state)]
+      (event-row attribute))]
+   [create-event-link]
+   [home-page-link]])
 
 ;; -------------------------
 ;; Routes

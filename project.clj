@@ -25,8 +25,9 @@
                  [cljs-ajax "0.5.1"]]
 
   :plugins [[lein-environ "1.0.0"]
+            [refactor-nrepl "1.1.0"]
+            [cider/cider-nrepl "0.9.1"]
             [lein-asset-minifier "0.2.2"]]
-
   :ring {:handler proclodo-reagent-spike.handler/app
          :uberwar-name "proclodo-reagent-spike.war"}
 
@@ -42,7 +43,7 @@
 
   :minify-assets
   {:assets
-    {"resources/public/css/site.min.css" "resources/public/css/site.css"}}
+   {"resources/public/css/site.min.css" "resources/public/css/site.css"}}
 
   :cljsbuild {:builds {:app {:source-paths ["src/cljs"]
                              :compiler {:output-to     "resources/public/js/app.js"
@@ -95,7 +96,7 @@
                        :omit-source true
                        :cljsbuild {:jar true
                                    :builds {:app
-                                             {:source-paths ["env/prod/cljs"]
-                                              :compiler
-                                              {:optimizations :advanced
-                                               :pretty-print false}}}}}})
+                                            {:source-paths ["env/prod/cljs"]
+                                             :compiler
+                                             {:optimizations :advanced
+                                              :pretty-print false}}}}}})

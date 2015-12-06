@@ -161,8 +161,8 @@
   [:div
    "The atom " [:code "click-count"] " has value: "
    @click-count ", "
-   [:input {:type "button" :value "Click me!"
-            :on-click #(swap! click-count inc)}]])
+   [:button.btn.btn-success {:on-click #(swap! click-count inc)}
+    "Click me!"]])
 
   ;; -------------------------
   ;; Views
@@ -200,7 +200,8 @@
   "Render a row for an event attribute"
   [[key text]]
   (if-not (map? text)
-    [:div [:label (name key) ":"] " " text]
+    (let [label (id->label key)]
+     [:div [:label label ":"] " " text])
     (for [attribute text]
       (event-row attribute))))
 

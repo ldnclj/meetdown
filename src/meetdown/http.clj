@@ -15,7 +15,7 @@
              :create-event (data/create-entity db-conn (:txn-data req-body)))
              :create-user  (data/create-entity db-conn (:txn-data req-body))}))
 
-(defrecord Handler-component [dbconn component]
+(defrecord Handler-component [dbconn]
   component/Lifecycle
   (start [component]
     (println "Starting handler routes")
@@ -31,7 +31,7 @@
 (defn new-handler []
   (map->Handler-component {}))
 
-(defrecord Server-component [server-options handler component]
+(defrecord Server-component [server-options handler]
   component/Lifecycle
   (start [component]
     (println "Starting http-kit")

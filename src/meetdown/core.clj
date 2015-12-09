@@ -1,44 +1,43 @@
 (ns meetdown.core
-  (require [yoyo.core :as yc]
-           [meetdown.data :as d]
-           [meetdown.http :as h]
-           [yoyo :as y]
-           [yoyo.system :as ys]
-           [cats.core :as c]))
+  (:require [com.stuartsierra.component :as component]
+            [meetdown
+             [data :as d]
+             [http :as h]]))
 
+(def config {:dburi "datomic:mem://meetdown"
+             :server {:port 3000}})
 
-(defn dev-config []
-  (-> (fn []
-        (ys/->dep
-          (yc/->component {:dburi    "datomic:mem://meetdown"
-                           :http-kit {:port 3000}})))
+(defrecord Datomic-connection-component [dburi component]
+  component/Lifecycle
+  (start [component]
+    (println "Starting Datomic connection for " dburi)
+    (let [conn (d/setup-and-connect-to-db dburi)]
+      conn))
+  (stop [component]
+    (println "Stopping Datomic connection")
+    (d/close-db)))
 
-      (ys/named :config)))
+(defn new-database [dburi]
+  (map->Datomic-connection-component {:dburi dburi}))
 
-(defn datomic-connection-component []
-  (-> (fn []
-        (c/mlet [uri (ys/ask :config :dburi)]
-          (ys/->dep
-           (let [conn (d/setup-and-connect-to-db uri)]
-             (yc/->component conn
-                             (fn []
-                               (d/close-db)))))))
-      (ys/named :db-conn)))
-
-(defn make-system []
-  (-> (ys/make-system #{(dev-config)
-                        (datomic-connection-component)
-                        (h/m-server)})
-
-      (yc/with-system-put-to 'user/foo-system)))
+(defn meetdown-system [config]
+  (let [{:keys [dburi server]} config]
+    (println dburi)
+    (component/system-map
+     :dbconn  (new-database dburi)
+     :handler (component/using
+               (h/new-handler)
+               [:dbconn])
+     :app    (component/using
+              (h/new-server server)
+              [:handler]))))
 
 (defn -main []
-  (y/set-system-fn! 'meetdown.core/make-system)
-
-  (y/start!))
+  (component/start
+   (meetdown-system config)))
 
 (comment
-  ;; Start system by running (-main). Use (y/reload!) to reload.
+  ;; Start system by running (-main) or (meetdown.user/go). Use (meetdown.user/reset) to reload.
   ;; To create data run transact in comment in data.clj
   ;; To fetch events -
   ;;    curl -X POST -d "{:type :get-events}" http://localhost:3000/q --header "Content-Type:application/edn"

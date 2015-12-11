@@ -1,4 +1,4 @@
-(ns meetdown.user
+(ns user
   (:require [com.stuartsierra.component :as component]
             [clojure.tools.namespace.repl :refer [refresh]]
             [meetdown.core :as app]))

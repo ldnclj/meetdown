@@ -10,8 +10,11 @@
                  [ring/ring-core "1.3.2"]
                  [ring-middleware-format "0.7.0"]
                  [ring/ring-defaults "0.1.5"]
-                 [compojure "1.3.4"]
-                 [org.clojure/tools.namespace "0.2.11"]]
+                 [compojure "1.3.4"]]
   :main meetdown.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}
+             :dev {:source-paths ["dev"]
+                   :dependencies [[org.clojure/tools.namespace "0.2.3"]
+                                  [org.clojure/java.classpath "0.2.0"]]
+                   :repl-options {:init-ns user}}})

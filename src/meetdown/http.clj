@@ -1,43 +1,74 @@
 (ns meetdown.http
-  (:require [org.httpkit.server :as http]
-            [yoyo.core :as yc]
-            [cats.core :as c]
-            [yoyo.system :as ys]
-            [yoyo.http-kit :as http-kit]
-            [compojure.core :refer [routes GET POST DELETE ANY context]]
+  (:require [compojure.core :refer [routes GET POST DELETE ANY context]]
             [compojure.route :refer [files]]
-            [ring.middleware.format :refer [wrap-restful-format]]
+            [meetdown.data :as data]
+            [org.httpkit.server :refer [run-server]]
             [ring.middleware.defaults :as rmd]
-            [meetdown.data :as data]))
+            [ring.middleware.format :refer [wrap-restful-format]]
+            [ring.middleware.json :refer [wrap-json-body wrap-json-params wrap-json-response]]
+            [taoensso.timbre :as timbre]))
+
+(timbre/refer-timbre)
+
+(defn create-event [db-conn params]
+  (info "Creating event with params" params)
+  (data/create-entity db-conn (:txn-data params)))
+
+(defn get-event [db-conn id]
+  (info "Getting event" id))
 
 (defn- handle-query
   [db-conn]
   (fn [{req-body :body-params}]
+    (info "Handling query " req-body)
     {:body (case (:type req-body)
-             :get-events (data/get-events db-conn)
+             :get-events   (data/get-events db-conn)
              :create-event (data/create-entity db-conn (:txn-data req-body)))
-             :create-user  (data/create-entity db-conn (:txn-data req-body))}))
+     :create-user  (data/create-entity db-conn (:txn-data req-body))}))
 
-(defn m-handler []
-  (c/mlet [db-conn (ys/ask :db-conn)]
-    (ys/->dep
-     (-> (routes
-          (files "/")
-          (POST "/q" []
-                (handle-query db-conn)))
+(defn make-router [db-conn]
+  (-> (routes
+       (files "/")
+       (POST "/q" []
+             (handle-query db-conn)))))
 
-         (wrap-restful-format :formats [:edn :transit-json])
-         (rmd/wrap-defaults (-> rmd/site-defaults
-                                (assoc-in [:security :anti-forgery] false)))))))
+(def default-config
+  {:params {:urlencoded true
+            :keywordize true
+            :nested     true
+            :multipart  true}
 
-(defn m-server []
-  (-> (fn []
-        (c/mlet [handler (m-handler)
-                 http-kit-opts (ys/ask :config :http-kit)]
-          (ys/->dep
-           (http-kit/start-server! {:handler handler
-                                    :server-opts http-kit-opts}))))
-      (ys/named :web-server)))
+   :responses {:not-modified-responses true
+               :absolute-redirects     true
+               :content-types          true}})
+
+(defn wrap-log-request
+  ([handler]
+    (fn [req]
+      (debug "Handling request" req)
+      (handler req))))
+
+(defn make-handler [db-conn]
+  (-> (make-router db-conn)
+      (wrap-log-request)
+      (wrap-restful-format :formats [:edn :transit-json])
+      (rmd/wrap-defaults (-> rmd/site-defaults
+                             (assoc-in [:security :anti-forgery] false)))))
+
+(defn start-http-server! [{:keys [db-conn http-opts handler] :as system}]
+  (when (not handler)
+    (let [opts    (get-in system [:config :http-kit])
+          handler (make-handler (system :db-conn))]
+      (info "Starting http server")
+      (-> system
+          (assoc :f-stop-http! (run-server handler opts))
+          (assoc :handler      handler)))))
+
+(defn stop-http-server! [{:keys [f-stop-http!] :as system}]
+  (when f-stop-http!
+    (info "Stopping http server")
+    (f-stop-http!)
+    (assoc system :f-stop-http! nil)))
 
 (comment
 

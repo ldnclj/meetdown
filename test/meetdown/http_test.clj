@@ -61,6 +61,7 @@
     (is (= (response :status ) HttpServletResponse/SC_OK))
     (is (= (headers :Content-Type) "application/edn; charset=utf-8"))))
 
+;; TODO Would be neater to blank the database before this test
 (deftest get-events-then-event-exists []
   (let [event-name "test-event-name"
         id         (extract-body (call-create-event event-name))

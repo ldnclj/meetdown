@@ -2,7 +2,7 @@
   (:require [meetdown.system :refer [system start]]))
 
 (defn -main []
-  (start system))
+  (start (system)))
 
 (comment
   ;; Start system by running (-main). Use (user/reset) to reload.

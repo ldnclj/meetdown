@@ -83,29 +83,45 @@ at using other testing frameworks (jaycfields/expectations was mentioned, and ye
 monopolise and looking at those seemed like a nice task for someone else to play with.
 
 Questions I've got
+
 * Should I stick Yoyo back in? Help! I feel bad for taking it out!
 * I wondered what the REST API should look like? At the moment it's just one post method for creating items and for
   getting them. Do we care about making this look like a regular REST API if it's only going to be used by our
   ClojureScript client?
 * Would it be worth defining the API? If we do that, we can write tests and TDD the server development, and it'd give
   the guys working on the client a foundation they can work on. Thoughts?
+  * Having read the status, it sounds like we're wanting to move to more of a standard REST API. How about something
+    like this, and if we're happy with it, how about we put this in during the next dojo?
+    * POST /users => Create a user, return ID and CREATED
+    * GET /user/ID => Return resource for user with ID or NOT_FOUND
+    * POST /events => Create an event, return ID and CREATED
+    * GET /event/ID => Return resource for event with ID or NOT_FOUND
+    * PATCH /event/ID => Add speakers and/or attendees to event?
 
 ## Usage
 
 ```
+
 $ lein repl
-nREPL server started on port 51539 on host 127.0.0.1 - nrepl://127.0.0.1:51539
-user=> (require '[meetdown.core])
-nil
-user=> (in-ns 'meetdown.core)
-#object[clojure.lang.Namespace 0x3a6cb9eb "meetdown.core"]
-meetdown.core=> (create-dev-system)
-#object[meetdown.core$create_dev_system$fn__15391 0x535dd914 "meetdown.core$create_dev_system$fn__15391@535dd914"]
-meetdown.core=> (y/start!)
-meetdown.core=> (y/stop!) <-- shut down after you're finished
+nREPL server started on port 38344 on host 127.0.0.1 - nrepl://127.0.0.1:38344
+REPL-y 0.3.5, nREPL 0.2.12
+Clojure 1.7.0
+Java HotSpot(TM) 64-Bit Server VM 1.8.0_60-b27
+    Docs: (doc function-name-here)
+          (find-doc "part-of-name-here")
+  Source: (source function-name-here)
+ Javadoc: (javadoc java-object-or-class-here)
+    Exit: Control+D or (exit) or (quit)
+ Results: Stored in vars *1, *2, *3, an exception in *e
+
+meetdown.core=> (-main)
+15-Dec-12 13:01:22 stuw-ThinkPad-X240 INFO [meetdown.data] - Starting database
+15-Dec-12 13:01:22 stuw-ThinkPad-X240 INFO [meetdown.http] - Starting http server
+{:config {:dburi "datomic:mem://meetdown", :http-kit {:port 3000}}, :db-conn #object[datomic.peer.LocalConnection 0x5ca0254f "datomic.peer.LocalConnection@5ca0254f"], :f-stop-http! #object[clojure.lang.AFunction$1 0x51084c07 "clojure.lang.AFunction$1@51084c07"], :handler #object[ring.middleware.x_headers$wrap_content_type_options$fn__11876 0x1720442c "ring.middleware.x_headers$wrap_content_type_options$fn__11876@1720442c"]}
+meetdown.core=> 
 ```
 
-Then browse to http://localhost:8090/
+Then browse to http://localhost:3000/
 
 ## License
 

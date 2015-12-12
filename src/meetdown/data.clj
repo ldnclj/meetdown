@@ -53,17 +53,3 @@
     (info "Stopping database")
     (close-db)
     (assoc system :db-conn nil)))
-
-
-
-(comment
-  (get-events (:db-conn user/foo-system))
-
-  (create-entity (:db-conn user/foo-system) {:event/name "New event"})
-
-
-
-  (d/transact (:db-conn user/foo-system) [{:db/id #db/id[:db.part/user]
-                                           :event/name "ProCloDo Dojo 20 Novemnber 2015"}])
-
-  )

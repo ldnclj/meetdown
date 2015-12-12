@@ -10,13 +10,6 @@
 
 (timbre/refer-timbre)
 
-(defn create-event [db-conn params]
-  (info "Creating event with params" params)
-  (data/create-entity db-conn (:txn-data params)))
-
-(defn get-event [db-conn id]
-  (info "Getting event" id))
-
 (defn- handle-query
   [db-conn]
   (fn [{req-body :body-params}]
@@ -72,8 +65,9 @@
 
 (comment
 
-  (data/create-entity user/foo-system (:txn-data {:event/name "New event-2"}))
+  
+  (data/create-entity (user/system :db-conn) (:txn-data {:event/name "New event-2"}))
 
-  (data/create-entity db-conn (:txn-data req-body))
+  (data/create-entity (user/system :db-conn) (:txn-data req-body))
 
   )

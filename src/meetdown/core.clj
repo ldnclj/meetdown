@@ -25,12 +25,9 @@
     (println dburi)
     (component/system-map
      :dbconn  (new-database dburi)
-     :handler (component/using
-               (h/new-handler)
-               [:dbconn])
-     :app    (component/using
-              (h/new-server server)
-              [:handler]))))
+     :app     (component/using
+               (h/new-server server)
+               [:dbconn]))))
 
 (defn -main []
   (component/start

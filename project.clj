@@ -10,9 +10,24 @@
                  [ring/ring-core "1.3.2"]
                  [ring-middleware-format "0.7.0"]
                  [ring/ring-defaults "0.1.5"]
-                 [compojure "1.3.4"]]
+                 [compojure "1.3.4"]
+                 [reagent "0.5.1"]
+                 [cljs-http "0.1.38"]
+                 [petrol "0.1.0"]
+                 [hiccup "1.0.5"]]
   :main meetdown.core
+  :source-paths ["src" "src-cljs"]
   :target-path "target/%s"
+  :plugins [[lein-cljsbuild "1.1.1"]
+            [lein-figwheel "0.5.0-1"]]
+  :cljsbuild {:builds {:app {:source-paths ["src-cljs"]
+                             :figwheel {:on-jsload "meetdown.corecljs/reload-hook"}
+                             :compiler {:main         meetdown.corecljs
+                                        :output-to    "resources/public/js/app.js"
+                                        :output-dir   "resources/public/js/out"
+                                        :asset-path   "js/out"
+                                        :optimizations :none
+                                        :pretty-print  true}}}}
   :profiles {:uberjar {:aot :all}
              :dev {:source-paths ["dev"]
                    :dependencies [[org.clojure/tools.namespace "0.2.3"]

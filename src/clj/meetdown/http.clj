@@ -7,15 +7,21 @@
             [hiccup.page :refer [include-js include-css]]
             [ring.middleware.format :refer [wrap-restful-format]]
             [ring.middleware.defaults :as rmd]
-            [meetdown.data :as data]))
+            [meetdown.data :as data]
+            [ring.middleware.cors :refer [wrap-cors]]))
 
 (defn- handle-query
   [db-conn]
   (fn [{req-body :body-params}]
-    {:body (case (:type req-body)
-             :get-events (data/get-events db-conn)
-             :create-event (data/create-entity db-conn (:txn-data req-body)))
-             :create-user  (data/create-entity db-conn (:txn-data req-body))}))
+    (let [db (data/database db-conn)]
+     {:body (case (:type req-body)
+              :get-events (data/get-events db)
+              :create-event (do (println "Req body=" req-body)
+                                (let [id (data/create-entity db-conn (:txn-data req-body))
+                                      db (data/database db-conn)
+                                      entity (data/to-ent db id)]
+                                  entity)))
+      :create-user  (data/create-entity db-conn (:txn-data req-body))})))
 
 (def home-page
   (html
@@ -40,6 +46,8 @@
              (handle-query dbconn))
        (resources "/"))
       (wrap-restful-format :formats [:edn :transit-json])
+      (wrap-cors :access-control-allow-origin [#"http://localhost:3449"]
+                 :access-control-allow-methods [:get :post])
       (rmd/wrap-defaults (-> rmd/site-defaults
                              (assoc-in [:security :anti-forgery] false)))))
 

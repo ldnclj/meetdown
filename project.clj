@@ -13,14 +13,17 @@
                  [compojure "1.3.4"]
                  [reagent "0.5.1"]
                  [cljs-http "0.1.38"]
+                 [org.clojure/clojurescript "1.7.170"]
+                 [org.clojure/core.async "0.2.374"]
                  [petrol "0.1.0"]
-                 [hiccup "1.0.5"]]
+                 [hiccup "1.0.5"]
+                 [ring-cors "0.1.7"]]
   :main meetdown.core
-  :source-paths ["src" "src-cljs"]
+  :source-paths ["src/clj" "src/cljs"]
   :target-path "target/%s"
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0-1"]]
-  :cljsbuild {:builds {:app {:source-paths ["src-cljs"]
+  :cljsbuild {:builds {:app {:source-paths ["src/cljs"]
                              :figwheel {:on-jsload "meetdown.corecljs/reload-hook"}
                              :compiler {:main         meetdown.corecljs
                                         :output-to    "resources/public/js/app.js"

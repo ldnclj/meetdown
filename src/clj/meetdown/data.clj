@@ -1,6 +1,8 @@
 (ns meetdown.data
   (require [datomic.api :only [q db] :as d]))
 
+(defn database [db-conn] (d/db db-conn))
+
 (defn install-base-schema [conn]
   @(d/transact
      conn (read-string (slurp "resources/schema.edn"))))
@@ -17,32 +19,41 @@
 
 (defn create-entity
   "Takes transaction data and returns the resolved tempid"
-  [con tx-data]
+  [conn tx-data]
   (let [had-id (contains? tx-data ":db/id")
         data-with-id (if had-id
                        tx-data
                        (assoc tx-data :db/id #db/id[:db.part/user -1000001]))
-        tx @(d/transact con [data-with-id])]
+        tx @(d/transact conn [data-with-id])]
     (if had-id (tx-data ":db/id")
-               (d/resolve-tempid (d/db con) (:tempids tx)
+               (d/resolve-tempid (d/db conn) (:tempids tx)
                                  (d/tempid :db.part/user -1000001)))))
 
 (defn to-ent "Takes a db id and connection and returns the entity"
-  [conn id] (-> conn d/db (d/entity id)))
+  [db id] (when-let [entity (d/entity db id)] (d/touch entity)))
 
-(defn get-events [db-conn]
-  (let [db (d/db db-conn)]
-    (d/pull-many db [:*]
-                 (->> (d/q '{:find [?event-id]
-                             :where [[?event-id :event/name]]}
-                           db)
-                      (map first)))))
+(defn get-events [db]
+  (d/pull-many db [:*]
+               (->> (d/q '{:find [?event-id]
+                           :where [[?event-id :event/name]]}
+                         db)
+                    (map first))))
 
 
 (comment
-  (get-events (get-in meetdown.user/system [:dbconn]))
 
-  (create-entity (:dbconn meetdown.user/system) {:event/name "Newest event"})
+  (database (get user/system :dbconn))
+  (get-events (database (get-in user/system [:dbconn])))
+
+  (let [dbconn (:dbconn user/system)
+        id     (create-entity dbconn {:event/name "Newest event"})
+        db (database dbconn)]
+    (d/touch (d/entity db id)))
+
+  (let [dbconn (:dbconn user/system)
+        id (create-entity dbconn {:event/name "Newest event"})
+        db (database dbconn)]
+    (to-ent db id))
 
 
 

@@ -1,11 +1,13 @@
-(ns meetdown.corecljs
-  (:require [petrol.core :as petrol]
-            [reagent.core :as reagent]
+(ns meetdown.core
+  (:require [reagent.core :as reagent :refer [atom]]
+            [petrol.core :as petrol]
+            [meetdown.processing]
             [meetdown.view :as view]))
 
+;; define your app data so that it doesn't get over-written on reload
 
 (def initial-state
-  {:event {:name ""}})
+  {:event {:name "" :speaker ""} :server-state nil})
 
 (defonce !app
   (reagent/atom initial-state))

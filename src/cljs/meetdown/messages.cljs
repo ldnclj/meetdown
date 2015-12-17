@@ -1,7 +1,9 @@
 (ns meetdown.messages)
 
-(defrecord ChangeEventForm [form])
+(defrecord ChangeEventName [name])
 
-(defrecord NewEvent [])
+(defrecord ChangeEventSpeaker [speaker])
 
-(defrecord EventResults [])
+(defrecord CreateEvent [event])
+
+(defrecord CreateEventResults [body])

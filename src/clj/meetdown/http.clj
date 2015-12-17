@@ -37,17 +37,16 @@
       [:p "please run "
        [:b "lein figwheel"]
        " in order to start the compiler"]]
-     (include-js "js/app.js")]]))
+     (include-js "js/compiled/meetdown.js")
+     [:script {:type "text/javascript"} "addEventListener(\"load\", meetdown.corecljs.main, false);"]
+     ]]))
 
 (defn app [dbconn]
   (-> (routes
-       (GET "/" [] home-page)
        (POST "/q" []
              (handle-query dbconn))
        (resources "/"))
       (wrap-restful-format :formats [:edn :transit-json])
-      (wrap-cors :access-control-allow-origin [#"http://localhost:3449"]
-                 :access-control-allow-methods [:get :post])
       (rmd/wrap-defaults (-> rmd/site-defaults
                              (assoc-in [:security :anti-forgery] false)))))
 

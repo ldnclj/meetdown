@@ -2,7 +2,7 @@
   (:require [org.httpkit.server :as http]
             [com.stuartsierra.component :as component]
             [compojure.core :refer [routes GET POST DELETE ANY context]]
-            [compojure.route :refer [resources]]
+            [compojure.route :refer [resources files]]
             [hiccup.core :refer [html]]
             [hiccup.page :refer [include-js include-css]]
             [ring.middleware.format :refer [wrap-restful-format]]
@@ -38,14 +38,15 @@
        [:b "lein figwheel"]
        " in order to start the compiler"]]
      (include-js "js/compiled/meetdown.js")
-     [:script {:type "text/javascript"} "addEventListener(\"load\", meetdown.corecljs.main, false);"]
+     [:script {:type "text/javascript"} "addEventListener(\"load\", meetdown.core.main, false);"]
      ]]))
 
 (defn app [dbconn]
   (-> (routes
+       (resources "/")
+       (GET "/" [] home-page)
        (POST "/q" []
-             (handle-query dbconn))
-       (resources "/"))
+             (handle-query dbconn)))
       (wrap-restful-format :formats [:edn :transit-json])
       (rmd/wrap-defaults (-> rmd/site-defaults
                              (assoc-in [:security :anti-forgery] false)))))

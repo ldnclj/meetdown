@@ -5,7 +5,7 @@
 (defn- server-view
   [server-state]
   [:div
-   [:label (str "server state again: " server-state)]])
+   [:label (str "server state: " server-state)]])
 
 
 (defn- event-form

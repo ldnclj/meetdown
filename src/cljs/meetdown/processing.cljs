@@ -7,12 +7,17 @@
 (extend-protocol Message
   m/ChangeEventName
   (process-message [{:keys [name]} app]
-    (assoc-in app [:event :event/name] name)))
+    (assoc-in app [:event :name] name)))
 
 (extend-protocol Message
   m/ChangeEventSpeaker
   (process-message [{:keys [speaker]} app]
-    (assoc-in app [:event :event/speaker] speaker)))
+    (assoc-in app [:event :speaker] speaker)))
+
+(extend-protocol Message
+  m/ChangeEventDescription
+  (process-message [{:keys [description]} app]
+    (assoc-in app [:event :description] description)))
 
 (extend-protocol Message
   m/CreateEvent
@@ -31,4 +36,5 @@
   m/CreateEventResults
   (process-message [response app]
     (println "Response= " response)
-    (assoc app :server-state (-> response :body))))
+    (assoc app :server-state (-> response :body))
+    (assoc-in app [:view :name] :event)))

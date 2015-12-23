@@ -1,6 +1,7 @@
 (ns meetdown.view
   (:require [petrol.core :refer [send! send-value!]]
-            [meetdown.messages :as m]))
+            [meetdown.messages :as m]
+            [cljs.core.match :refer-macros [match]]))
 
 (defn- server-view
   [server-state]
@@ -24,6 +25,12 @@
                   :defaultValue speaker
                   :on-change (send-value! ui-channel m/->ChangeEventSpeaker)}]]]
    [:tr
+    [:td [:label "Description:"]]
+    [:td [:input {:type :text
+                  :placeholder "Description..."
+                  :defaultValue speaker
+                  :on-change (send-value! ui-channel m/->ChangeEventDescription)}]]]
+   [:tr
     [:td
      [:button.btn.btn-success
       {:on-click (send! ui-channel (m/->CreateEvent event))}
@@ -31,12 +38,12 @@
 
 
 (defn root
-  [ui-channel {:keys [event server-state]
+  [ui-channel {:keys [event server-state view]
                :as app}]
   [:div.container-fluid
    {:style {:display :flex :flex-direction :column :align-items :center}}
    [:h1.col-md-12 "Event Management Client"]
-   [event-form ui-channel event]
-
-   [:div
-    [server-view server-state]]])
+   (match [view]
+          [{:name :new-event}] [event-form ui-channel event]
+          [{:name :test}]      [:p "test render"]
+          [{:name :event}]     [server-view server-state])])

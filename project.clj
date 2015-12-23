@@ -7,7 +7,6 @@
                  [com.stuartsierra/component "0.3.1"]
                  [com.datomic/datomic-free "0.9.5302" :exclusions [joda-time]]
                  [http-kit "2.1.19"]
-;;                 [ring/ring-core "1.3.2"]
                  [ring-middleware-format "0.7.0"]
                  [ring/ring-defaults "0.1.5"]
                  [compojure "1.3.4"]
@@ -17,6 +16,7 @@
                  [org.clojure/core.async "0.2.374"]
                  [petrol "0.1.0"]
                  [hiccup "1.0.5"]
+                 [org.clojure/core.match "0.3.0-alpha4"]
                  [ring-cors "0.1.7"]]
   :main meetdown.core
   :source-paths ["src/clj"]

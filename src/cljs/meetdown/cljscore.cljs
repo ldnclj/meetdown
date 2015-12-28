@@ -1,4 +1,4 @@
-(ns meetdown.core
+(ns meetdown.cljscore
   (:require [reagent.core :as reagent :refer [atom]]
             [petrol.core :as petrol]
             [meetdown.processing]

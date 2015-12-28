@@ -1,8 +1,8 @@
 (ns meetdown.processing
-  (:require [petrol.core :refer [Message EventSource]]
-            [meetdown.messages :as m]
-            [meetdown.rest :as rest]))
-
+  (:require [meetdown.messages :as m]
+            [meetdown.rest :as rest]
+            [meetdown.utils :refer [remove-ns]]
+            [petrol.core :refer [EventSource Message]]))
 
 (extend-protocol Message
   m/ChangeEventName
@@ -22,8 +22,7 @@
 (extend-protocol Message
   m/CreateEvent
   (process-message [_ {:keys [event server-state] :as app}]
-    (println "app=" app ", event=" event)
-    (assoc app :server-state event)))
+    app))
 
 (extend-protocol EventSource
   m/CreateEvent
@@ -32,9 +31,15 @@
     (println "app in EventSource=" app ", event = " event)
     #{(rest/create-event event)}))
 
+(defn- extract-event
+  "Extract the event from the http response"
+  [response]
+  (->> response :body (reduce (remove-ns "event") {})))
+
 (extend-protocol Message
   m/CreateEventResults
   (process-message [response app]
     (println "Response= " response)
-    (assoc app :server-state (-> response :body))
-    (assoc-in app [:view :name] :event)))
+    (-> app
+        (assoc :server-state (extract-event response))
+        (assoc-in [:view :name] :event))))

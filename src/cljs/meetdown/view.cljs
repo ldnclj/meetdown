@@ -3,10 +3,21 @@
             [meetdown.messages :as m]
             [cljs.core.match :refer-macros [match]]))
 
+(defn- home-view
+  []
+  [:div.col-md-12.
+   [:a {:href "#/new-event"} "Create new meetdown"]])
+
 (defn- server-view
   [server-state]
-  [:div
-   [:label (str "server state: " server-state)]])
+  [:div.table
+   [:div.row
+    [:h3.col-md-12 "Server State"]]
+   (for [event-attr server-state]
+     (let [attr-name (-> event-attr first name)]
+       [:div.row {:key attr-name}
+        [:label.col-md-3 (-> attr-name (str ":"))]
+        [:div.col-md-9 (second event-attr)]]))])
 
 
 (defn- event-form
@@ -40,10 +51,13 @@
 (defn root
   [ui-channel {:keys [event server-state view]
                :as app}]
-  [:div.container-fluid
-   {:style {:display :flex :flex-direction :column :align-items :center}}
-   [:h1.col-md-12 "Event Management Client"]
-   (match [view]
-          [{:name :new-event}] [event-form ui-channel event]
-          [{:name :test}]      [:p "test render"]
-          [{:name :event}]     [server-view server-state])])
+  [:div
+   [:div.container
+    [:div.row
+     [:div.col-md-6.col-md-offset-3
+      [:h2 "Event Management Client"]]]
+    (match [view]
+             [{:name :new-event}] [event-form ui-channel event]
+             [{:name :test}]      [:p "test render"]
+             [{:name :event}]     [server-view server-state]
+             [{:name :home}]      [home-view])]])

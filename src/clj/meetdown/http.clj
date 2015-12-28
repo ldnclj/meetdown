@@ -20,8 +20,8 @@
                                 (let [id (data/create-entity db-conn (:txn-data req-body))
                                       db (data/database db-conn)
                                       entity (data/to-ent db id)]
-                                  entity)))
-      :create-user  (data/create-entity db-conn (:txn-data req-body))})))
+                                  entity))
+              :create-user  (data/create-entity db-conn (:txn-data req-body)))})))
 
 (def home-page
   (html
@@ -30,7 +30,7 @@
      [:meta {:charset "utf-8"}]
      [:meta {:name "viewport"
              :content "width=device-width, initial-scale=1"}]
-     (include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css")]
+     [:link {:rel "stylesheet" :href "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" :integrity "sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" :crossorigin "anonymous"}]]
     [:body
      [:div#app
       [:h3 "ClojureScript has not been compiled!"]
@@ -38,7 +38,7 @@
        [:b "lein figwheel"]
        " in order to start the compiler"]]
      (include-js "js/compiled/meetdown.js")
-     [:script {:type "text/javascript"} "addEventListener(\"load\", meetdown.core.main, false);"]
+     [:script {:type "text/javascript"} "addEventListener(\"load\", meetdown.cljscore.main, false);"]
      ]]))
 
 (defn app [dbconn]
@@ -51,7 +51,7 @@
       (rmd/wrap-defaults (-> rmd/site-defaults
                              (assoc-in [:security :anti-forgery] false)))))
 
-(defrecord Server-component [server-options dbconn]
+(defrecord Server-component [server-options dbconn web-server]
   component/Lifecycle
   (start [component]
     (println "Starting http-kit")

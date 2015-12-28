@@ -14,7 +14,7 @@
                  [cljs-http "0.1.38"]
                  [org.clojure/clojurescript "1.7.170" :exclusions [org.apache.ant/ant]]
                  [org.clojure/core.async "0.2.374"]
-                 [petrol "0.1.0"]
+                 [petrol "0.1.2"]
                  [hiccup "1.0.5"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [ring-cors "0.1.7"]]
@@ -25,14 +25,15 @@
   :cljsbuild {:builds [{:id "dev"
                         :source-paths ["src/cljs"]
                         :figwheel {:on-jsload    "meetdown.core/reload-hook"}
-                        :compiler {:main         meetdown.core
+                        :compiler {:main         meetdown.cljscore
                                    :output-to    "resources/public/js/compiled/meetdown.js"
                                    :output-dir   "resources/public/js/compiled/out"
                                    :asset-path   "js/compiled/out"
                                    :source-map-timestamp true}}]}
   :profiles {:uberjar {:aot :all}
              :dev {:source-paths ["dev" "src/cljs"]
-                   :dependencies [[org.clojure/tools.namespace "0.2.3"]
+                   :dependencies [[ring/ring-mock "0.3.0"]
+                                  [org.clojure/tools.namespace "0.2.3"]
                                   [org.clojure/java.classpath "0.2.0"]
                                   [figwheel-sidecar "0.5.0-1"]
                                   [com.cemerick/piggieback "0.2.1"]]}

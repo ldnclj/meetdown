@@ -1,12 +1,8 @@
 (ns meetdown.rest
   (:require [cljs-http.client :as http]
             [petrol.core :as petrol]
-            [meetdown.messages :as m]))
-
-(defn- add-ns
-  "Add the specified namespace to the keywords in the map"
-  [ns]
-  (fn [m [k v]] (assoc m (->> (name k) (str ns "/") keyword) v)))
+            [meetdown.messages :as m]
+            [meetdown.utils :refer [add-ns]]))
 
 (defn create-event
   [event]

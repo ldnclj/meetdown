@@ -7,7 +7,7 @@
 (def config {:dburi "datomic:mem://meetdown"
              :server {:port 3000}})
 
-(defrecord Datomic-connection-component [dburi]
+(defrecord Datomic-connection-component [dburi connection]
   component/Lifecycle
   (start [component]
     (println "Starting Datomic connection for " dburi)

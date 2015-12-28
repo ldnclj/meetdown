@@ -7,8 +7,8 @@
 
 (defn init []
   (alter-var-root #'system
-    (constantly (app/meetdown-system {:dburi "datomic:mem://meetdown"
-             :server {:port 3000}}))))
+                  (constantly (app/meetdown-system {:dburi "datomic:mem://meetdown"
+                                                    :server {:port 3000}}))))
 
 (defn start []
   (alter-var-root #'system component/start))

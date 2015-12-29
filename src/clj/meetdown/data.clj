@@ -44,6 +44,8 @@
 
   (database (get user/system :dbconn))
   (get-events (database (get-in user/system [:dbconn])))
+  (create-entity (:dbconn user/system) {:event/name "Newest event"})
+  (to-ent (database (get-in user/system [:dbconn])) 17592186045418)
 
   (let [dbconn (:dbconn user/system)
         id     (create-entity dbconn {:event/name "Newest event"})

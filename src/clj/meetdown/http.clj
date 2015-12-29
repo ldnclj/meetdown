@@ -15,12 +15,15 @@
   (fn [{req-body :body-params}]
     (let [db (data/database db-conn)]
      {:body (case (:type req-body)
-              :get-events (data/get-events db)
+              :get-events   (data/get-events db)
               :create-event (do (println "Req body=" req-body)
-                                (let [id (data/create-entity db-conn (:txn-data req-body))
-                                      db (data/database db-conn)
-                                      entity (data/to-ent db id)]
-                                  entity))
+                                (let [id (data/create-entity db-conn (:txn-data req-body))]
+                                  {:event/id id}))
+              :get-event    (do (println "Get event3 " req-body)
+                             (let [id (get-in req-body [:txn-data :event/id])
+                                   entity (data/to-ent (data/database db-conn) id)]
+                               (println "dbconn=" db-conn "db = " db ", id = " id "Event = " entity)
+                                entity))
               :create-user  (data/create-entity db-conn (:txn-data req-body)))})))
 
 (def home-page

@@ -9,3 +9,7 @@
 (defrecord CreateEvent [event])
 
 (defrecord CreateEventResults [body])
+
+(defrecord FindEvent [id])
+
+(defrecord FindEventResults [body])

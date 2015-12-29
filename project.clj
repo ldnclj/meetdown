@@ -16,15 +16,14 @@
                  [org.clojure/core.async "0.2.374"]
                  [petrol "0.1.2"]
                  [hiccup "1.0.5"]
-                 [org.clojure/core.match "0.3.0-alpha4"]
-                 [ring-cors "0.1.7"]]
+                 [org.clojure/core.match "0.3.0-alpha4"]]
   :main meetdown.core
   :source-paths ["src/clj"]
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0-1"]]
   :cljsbuild {:builds [{:id "dev"
                         :source-paths ["src/cljs"]
-                        :figwheel {:on-jsload    "meetdown.core/reload-hook"}
+                        :figwheel {:on-jsload    "meetdown.cljscore/reload-hook"}
                         :compiler {:main         meetdown.cljscore
                                    :output-to    "resources/public/js/compiled/meetdown.js"
                                    :output-dir   "resources/public/js/compiled/out"

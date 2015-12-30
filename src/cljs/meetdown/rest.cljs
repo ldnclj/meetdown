@@ -23,5 +23,4 @@
                                       :edn-params {:type :get-event
                                                    :txn-data {:event/id id}}})
                           (petrol/wrap m/map->FindEventResults))]
-    (println "rest/find-event id = " id)
     post-channel))

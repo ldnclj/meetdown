@@ -16,14 +16,11 @@
     (let [db (data/database db-conn)]
      {:body (case (:type req-body)
               :get-events   (data/get-events db)
-              :create-event (do (println "Req body=" req-body)
-                                (let [id (data/create-entity db-conn (:txn-data req-body))]
-                                  {:event/id id}))
-              :get-event    (do (println "Get event3 " req-body)
-                             (let [id (get-in req-body [:txn-data :event/id])
-                                   entity (data/to-ent (data/database db-conn) id)]
-                               (println "dbconn=" db-conn "db = " db ", id = " id "Event = " entity)
-                                entity))
+              :create-event (let [id (data/create-entity db-conn (:txn-data req-body))]
+                              {:event/id id})
+              :get-event    (let [id (get-in req-body [:txn-data :event/id])
+                                  entity (data/to-ent (data/database db-conn) id)]
+                              entity)
               :create-user  (data/create-entity db-conn (:txn-data req-body)))})))
 
 (def home-page

@@ -1,5 +1,8 @@
 (ns meetdown.data
-  (require [datomic.api :only [q db] :as d]))
+  (:require [datomic.api :only [q db] :as d]
+            [taoensso.timbre :as timbre]))
+
+(timbre/refer-timbre)
 
 (defn install-base-schema [conn]
   @(d/transact

@@ -16,6 +16,8 @@
                  [com.cognitect/transit-clj "0.8.283"]
                  [ring-middleware-format "0.6.0"]
                  [ring/ring-defaults "0.1.5"]
+                 [ring/ring-json "0.3.1"]
+                 [ring/ring-mock "0.2.0"]
                  [com.cognitect/transit-cljs "0.8.225"]
                  [org.clojure/clojurescript "1.7.48"]
                  [sablono "0.3.4"]
@@ -34,7 +36,9 @@
                                    :optimizations :none
                                    :pretty-print true
                                    :verbose true}}]}
-  :profiles {:dev
-             {:figwheel
-              {:nrepl-port 7888}
-              :dependencies [[matcha "0.1.0"]]}})
+  :profiles {:dev {:figwheel     {:nrepl-port 7888}
+                   :dependencies [[org.clojure/tools.namespace "0.2.10"]
+                                  [org.clojure/tools.trace "0.7.8"]
+                                  [matcha "0.1.0"]]
+                   :source-paths ["dev"]
+                   :repl-options {:init-ns user}}})

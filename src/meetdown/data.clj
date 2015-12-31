@@ -1,5 +1,8 @@
 (ns meetdown.data
-  (require [datomic.api :only [q db] :as d]))
+  (:require [datomic.api :only [q db] :as d]
+            [taoensso.timbre :as timbre]))
+
+(timbre/refer-timbre)
 
 (defn install-base-schema [conn]
   @(d/transact
@@ -12,8 +15,7 @@
         conn)))
 
 (defn close-db []
-  (do (d/shutdown false)
-      (println "DB shut down")))
+  (d/shutdown false))
 
 (defn create-entity
   "Takes transaction data and returns the resolved tempid"

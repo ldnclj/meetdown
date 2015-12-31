@@ -10,11 +10,34 @@
                  [ring/ring-core "1.3.2"]
                  [ring-middleware-format "0.7.0"]
                  [ring/ring-defaults "0.1.5"]
-                 [compojure "1.3.4"]]
+                 [compojure "1.3.4"]
+                 [hiccup "1.0.5"]
+                 [com.cognitect/transit-clj "0.8.283"]
+                 [ring/ring-json "0.3.1"]
+                 [ring/ring-mock "0.2.0"]
+                 [org.clojure/clojurescript "1.7.48"]
+                 [sablono "0.3.4"]
+                 [com.taoensso/timbre "4.2.0"]
+                 [cljs-http "0.1.37"]]
   :main meetdown.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}
              :dev {:source-paths ["dev"]
+                   :figwheel     {:nrepl-port 7888}
                    :dependencies [[org.clojure/tools.namespace "0.2.3"]
-                                  [org.clojure/java.classpath "0.2.0"]]
-                   :repl-options {:init-ns user}}})
+                                  [org.clojure/java.classpath "0.2.0"]
+                                  [matcha "0.1.0"]]}
+                   :repl-options {:init-ns user}}
+  :cljsbuild {
+              :builds [{
+                        ; The path to the top-level ClojureScript source directory:
+                        :source-paths ["src-cljs"]
+                        ; The standard ClojureScript compiler options:
+                        ; (See the ClojureScript compiler documentation for details.)
+                        :figwheel :true
+                        :compiler {
+                                   :output-to "public/main.js"  ; default: target/cljsbuild-main.js
+                                   :output-dir "public/out"
+                                   :optimizations :none
+                                   :pretty-print true
+                                   :verbose true}}]})

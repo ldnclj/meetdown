@@ -3,29 +3,57 @@
             [com.stuartsierra.component :as component]
             [compojure.core :refer [routes GET POST DELETE ANY context]]
             [compojure.route :refer [files]]
-            [ring.middleware.format :refer [wrap-restful-format]]
+            [meetdown.data :as data]
+            [org.httpkit.server :refer [run-server]]
             [ring.middleware.defaults :as rmd]
-            [meetdown.data :as data]))
+            [ring.middleware.format :refer [wrap-restful-format]]
+            [taoensso.timbre :as timbre]))
+
+(timbre/refer-timbre)
 
 (defn- handle-query
   [db-conn]
   (fn [{req-body :body-params}]
+    (info "Handling query " req-body)
     {:body (case (:type req-body)
-             :get-events (data/get-events db-conn)
+             :get-events   (data/get-events db-conn)
              :create-event (data/create-entity db-conn (:txn-data req-body)))
              :create-user  (data/create-entity db-conn (:txn-data req-body))}))
+
+(defn make-router [db-conn]
+  (-> (routes
+       (files "/")
+       (POST "/q" []
+             (handle-query db-conn)))))
+
+(def default-config
+  {:params {:urlencoded true
+            :keywordize true
+            :nested     true
+            :multipart  true}
+
+   :responses {:not-modified-responses true
+               :absolute-redirects     true
+               :content-types          true}})
+
+(defn wrap-log-request
+  ([handler]
+    (fn [req]
+      (debug "Handling request" req)
+      (handler req))))
+
+(defn make-handler [db-conn]
+  (-> (make-router db-conn)
+      (wrap-log-request)
+      (wrap-restful-format :formats [:edn :transit-json])
+      (rmd/wrap-defaults (-> rmd/site-defaults
+                             (assoc-in [:security :anti-forgery] false)))))
 
 (defrecord Handler-component [dbconn]
   component/Lifecycle
   (start [component]
     (println "Starting handler routes")
-    (-> (routes
-          (files "/")
-          (POST "/q" []
-                (handle-query dbconn)))
-         (wrap-restful-format :formats [:edn :transit-json])
-         (rmd/wrap-defaults (-> rmd/site-defaults
-                                (assoc-in [:security :anti-forgery] false)))))
+    (make-handler dbconn))
   (stop [component]))
 
 (defn new-handler []
@@ -47,6 +75,8 @@
 
 (comment
 
-  (data/create-entity meetdown.user/system (:txn-data {:event/name "New event-2"}))
+  (data/create-entity (user/system :db-conn) (:txn-data {:event/name "New event-2"}))
+
+  (data/create-entity (user/system :db-conn) (:txn-data req-body))
 
   )

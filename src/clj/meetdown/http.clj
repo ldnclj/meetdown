@@ -1,12 +1,16 @@
 (ns meetdown.http
-  (:require [org.httpkit.server :as http]
-            [com.stuartsierra.component :as component]
-            [compojure.core :refer [routes GET POST DELETE ANY context]]
-            [compojure.route :refer [files]]
+  (:require [com.stuartsierra.component :as component]
+            [compojure
+             [core :refer [GET POST routes]]
+             [route :refer [files]]]
+            [hiccup
+             [core :refer [html]]
+             [page :refer [include-css include-js]]]
             [meetdown.data :as data]
-            [org.httpkit.server :refer [run-server]]
-            [ring.middleware.defaults :as rmd]
-            [ring.middleware.format :refer [wrap-restful-format]]
+            [org.httpkit.server :as http]
+            [ring.middleware
+             [defaults :as rmd]
+             [format :refer [wrap-restful-format]]]
             [taoensso.timbre :as timbre]))
 
 (timbre/refer-timbre)
@@ -20,11 +24,28 @@
              :create-event (data/create-entity db-conn (:txn-data req-body)))
              :create-user  (data/create-entity db-conn (:txn-data req-body))}))
 
+(def home-page
+  (html
+   [:html
+    [:head
+     [:meta {:charset "utf-8"}]
+     [:meta {:name "viewport"
+             :content "width=device-width, initial-scale=1"}]
+     (include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css")]
+    [:body
+     [:div#app
+      [:h3 "ClojureScript has not been compiled!"]
+      [:p "please run "
+       [:b "lein figwheel"]
+       " in order to start the compiler"]]
+     (include-js "js/app.js")]]))
+
 (defn make-router [db-conn]
   (-> (routes
-       (files "/")
+       (GET "/" [] home-page)
        (POST "/q" []
-             (handle-query db-conn)))))
+             (handle-query db-conn))
+       (files "/"))))
 
 (def default-config
   {:params {:urlencoded true

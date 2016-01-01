@@ -1,5 +1,5 @@
 (ns ^:figwheel-no-load meetdown.dev
-  (:require [meetdown.core :as core]
+  (:require [meetdown.corecljs :as core]
             [figwheel.client :as figwheel :include-macros true]))
 
 (enable-console-print!)

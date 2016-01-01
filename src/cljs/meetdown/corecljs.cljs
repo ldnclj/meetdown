@@ -1,4 +1,4 @@
-(ns meetdown.core
+(ns meetdown.corecljs
   (:require [ajax.core :as ajax]
             [cljs.core.async :as async
              :refer [<! >! chan close! sliding-buffer put! alts!]]

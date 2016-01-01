@@ -7,14 +7,15 @@
                  [com.stuartsierra/component "0.3.1"]
                  [com.datomic/datomic-free "0.9.5302" :exclusions [joda-time]]
                  [http-kit "2.1.19"]
-                 [ring/ring-core "1.3.2"]
+                 [ring-server "0.4.0"]
+                 [ring "1.4.0"]
                  [ring-middleware-format "0.7.0"]
                  [ring/ring-defaults "0.1.5"]
                  [hiccup "1.0.5"]
                  [com.cognitect/transit-clj "0.8.283"]
                  [ring/ring-json "0.3.1"]
                  [ring/ring-mock "0.2.0"]
-                 [org.clojure/clojurescript "1.7.48"]
+                 [org.clojure/clojurescript "1.7.170"]
                  [sablono "0.3.4"]
                  [com.taoensso/timbre "4.2.0"]
                  [cljs-http "0.1.37"]
@@ -31,15 +32,13 @@
   :target-path "target/%s"
   :source-paths ["src/clj" "src/cljs"]
   :plugins [[lein-environ "1.0.0"]
-            [refactor-nrepl "1.1.0"]
-            [cider/cider-nrepl "0.9.1"]
             [lein-asset-minifier "0.2.2"]]
   :minify-assets
   {:assets
    {"resources/public/css/site.min.css" "resources/public/css/site.css"}}
   :cljsbuild {:builds {:app {:source-paths ["src/cljs"]
-                             :compiler {:output-to     "resources/public/js/app.js"
-                                        :output-dir    "resources/public/js/out"
+                             :compiler {:output-to    "resources/public/js/app.js"
+                                        :output-dir   "resources/public/js/out"
                                         :asset-path   "js/out"
                                         :optimizations :none
                                         :pretty-print  true}}}}
@@ -50,34 +49,17 @@
                                   [matcha "0.1.0"]
                                   [ring/ring-mock "0.2.0"]
                                   [ring/ring-devel "1.4.0"]
-                                  [lein-figwheel "0.3.7"]
-                                  [org.clojure/tools.nrepl "0.2.10"]
-                                  [pjstadig/humane-test-output "0.7.0"]]
-                   :plugins [[lein-figwheel "0.3.7"]
-                             [lein-cljsbuild "1.0.6"]
-                             [com.cemerick/clojurescript.test "0.3.3"]]
-
-                   :injections [(require 'pjstadig.humane-test-output)
-                                (pjstadig.humane-test-output/activate!)]
+                                  [lein-figwheel "0.5.0-1"]]
+                   :plugins [[lein-figwheel "0.5.0-1"]
+                             [lein-cljsbuild "1.1.1"]]
 
                    :figwheel {:http-server-root "public"
                               :server-port 3449
-                              :nrepl-port 7002
-                              :css-dirs ["resources/public/css"]
-                              :ring-handler proclodo-reagent-spike.handler/app}
+                              :nrepl-port 7888
+                              :css-dirs ["resources/public/css"]}
 
                    :env {:dev true}
-                   :cljsbuild {:builds {:app {:source-paths ["env/dev/cljs"]
-                                              :compiler {:main "proclodo-reagent-spike.dev"
-                                                         :source-map true}}
-                                        :test {:source-paths ["src/cljs"  "test/cljs"]
-                                               :compiler {:output-to "target/test.js"
-                                                          :optimizations :whitespace
-                                                          :pretty-print true}}}
-                               :test-commands {"unit" ["phantomjs" :runner
-                                                       "test/vendor/es5-shim.js"
-                                                       "test/vendor/es5-sham.js"
-                                                       "test/vendor/console-polyfill.js"
-                                                       "target/test.js"]}}
-                   }}
+                   :cljsbuild {:builds {:app {:source-paths ["env/dev/cljs" "src/cljs"]
+                                              :compiler {:main "meetdown.dev"
+                                                         :source-map true}}}}}}
   :repl-options {:init-ns user})

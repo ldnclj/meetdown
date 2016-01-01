@@ -66,7 +66,7 @@
 (defn make-handler [db-conn]
   (-> (make-router db-conn)
       (wrap-log-request)
-      (wrap-restful-format :formats [:edn :transit-json])
+      (wrap-restful-format :formats [:edn :transit-json :json-kw])
       (rmd/wrap-defaults (-> rmd/site-defaults
                              (assoc-in [:security :anti-forgery] false)))))
 

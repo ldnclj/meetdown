@@ -48,6 +48,7 @@
                                   [org.clojure/java.classpath "0.2.0"]
                                   [matcha "0.1.0"]
                                   [ring/ring-mock "0.2.0"]
+                                  [com.cemerick/piggieback "0.2.1"]
                                   [ring/ring-devel "1.4.0"]
                                   [lein-figwheel "0.5.0-1"]]
                    :plugins [[lein-figwheel "0.5.0-1"]

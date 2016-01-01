@@ -1,5 +1,6 @@
 (ns meetdown.corecljs
   (:require [ajax.core :as ajax]
+            [ajax.edn :as ajax-edn]
             [cljs.core.async :as async
              :refer [<! >! chan close! sliding-buffer put! alts!]]
             [clojure.string :as str]
@@ -13,11 +14,7 @@
 
 (defonce state (atom {:event {:name "event"
                            :description ""
-                           :location {:street-address ""
-                                      :postcode ""}
                            :date ""
-                           :start-time ""
-                           :end-time ""
                            :speaker ""} :saved? false}))
 (defonce server-state (atom {}))
 (defonce click-count (atom 0))
@@ -34,17 +31,22 @@
   []
   [:div [:a {:href "#/"} "Go to the Home Page"]])
 
+(defn add-ns
+  [ns]
+  (fn [m [k v]] (assoc m (->> (name k) (str ns "/") keyword) v)))
+
 (defn post-event
   "Post a new event to the server."
   [event]
-  (ajax/POST "/q"
-             {:params          {:type  :create-event
-                                :event event}
-              :handler         (fn [response]
-                                 (set! (.-hash (.-location js/window)) (str "/event/" (response "id"))))
-              :error-hander    (fn [& args] (println "NOT OK" args))
-              :format          (ajax/json-request-format)
-              :response-format (ajax/json-response-format)}))
+  (let [event (reduce (add-ns "event") {} event)]
+    (ajax/POST "/q"
+               {:params          {:type     :create-event
+                                  :txn-data event}
+                :handler         (fn [response]
+                                   (set! (.-hash (.-location js/window)) (str "/event/" response)))
+                :error-hander    (fn [& args] (println "NOT OK" args))
+                :format          (ajax-edn/edn-request-format)
+                :response-format (ajax-edn/edn-response-format)})))
 
 (defonce save-event
   (go-loop []
@@ -123,11 +125,7 @@
   []
   (let [event-state (atom {:name ""
                            :description ""
-                           :location {:street-address ""
-                                      :postcode ""}
                            :date ""
-                           :start-time ""
-                           :end-time ""
                            :speaker ""})]
     (fn []
       [:div
@@ -137,10 +135,7 @@
                 :align-items :center}}
        [text-input :name event-state "Event name" [:name]]
        [text-area :description event-state]
-       [location-input :location event-state]
        [text-input :date event-state]
-       [text-input :start-time event-state]
-       [text-input :end-time event-state]
        [text-input :speaker event-state]
        [:div
         {:style {:display :flex

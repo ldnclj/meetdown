@@ -1,5 +1,5 @@
 (ns meetdown.prod
-  (:require [meetdown.core :as core]))
+  (:require [meetdown.corecljs :as core]))
 
 ;;ignore println statements in prod
 (set! *print-fn* (fn [& _]))

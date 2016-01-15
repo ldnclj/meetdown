@@ -35,6 +35,19 @@
   [ns]
   (fn [m [k v]] (assoc m (->> (name k) (str ns "/") keyword) v)))
 
+(defn get-event
+  "Get an event from the server"
+  [id]
+  (println "event id = " id)
+  (ajax/POST "/q"
+             {:params          {:type :get-event
+                                :txn-data {:db/id (long id)}}
+              :handler         (fn [response]
+                                 (swap! server-state assoc :event response))
+              :error-handler   (fn [& args] (println "get-event failed" args))
+              :format          (ajax-edn/edn-request-format)
+              :response-format (ajax-edn/edn-response-format)}))
+
 (defn post-event
   "Post a new event to the server."
   [event]
@@ -48,10 +61,14 @@
                 :format          (ajax-edn/edn-request-format)
                 :response-format (ajax-edn/edn-response-format)})))
 
-(defonce save-event
+(defonce handle-event
   (go-loop []
-    (let [event (<! event-channel)]
-      (post-event event)
+    (let [event-msg (<! event-channel)]
+      (println event-msg)
+      (case (:type event-msg)
+        :create-event (post-event (:event event-msg))
+        :get-event    (println "***** ID = " (:id event-msg))
+)
       (recur))))
 
 ;;--------------------------
@@ -147,7 +164,7 @@
           (fn [_]
             (swap! state assoc :event @event-state)
             (swap! state assoc :saved? true)
-            (go (>! event-channel @event-state)))}
+            (go (>! event-channel {:type :create-event :event @event-state})))}
          "Create"]]])))
 
 (defn counting-component
@@ -196,7 +213,9 @@
   [[key text]]
   (if-not (map? text)
     (let [label (id->label key)]
-     [:div [:label label ":"] " " text])
+      (with-meta
+        [:div [:label label ":"] " " text]
+        {:key label}))
     (for [attribute text]
       (event-row attribute))))
 
@@ -208,8 +227,10 @@
                  :align-items :center}}
    [:h2 "Event : " id]
    [:div
-    (for [attribute (:event @state)]
-      (event-row attribute))]
+    (let [event (:event @server-state)]
+      (when (not= (long id) (:db/id event)) (get-event id))
+     (for [attribute event]
+       (event-row attribute)))]
    [create-event-link]
    [home-page-link]])
 

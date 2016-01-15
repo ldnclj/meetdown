@@ -21,8 +21,10 @@
     (info "Handling query " req-body)
     {:body (case (:type req-body)
              :get-events   (data/get-events db-conn)
-             :create-event (data/create-entity db-conn (:txn-data req-body)))
-             :create-user  (data/create-entity db-conn (:txn-data req-body))}))
+             :get-event    (let [id (get-in req-body [:txn-data :db/id])]
+                             (data/get-entity db-conn id))
+             :create-event (data/create-entity db-conn (:txn-data req-body))
+             :create-user  (data/create-entity db-conn (:txn-data req-body)))}))
 
 (def home-page
   (html
@@ -75,7 +77,8 @@
   (start [component]
     (println "Starting handler routes")
     (make-handler dbconn))
-  (stop [component]))
+  (stop [component]
+    nil))
 
 (defn new-handler []
   (map->Handler-component {}))
@@ -96,8 +99,10 @@
 
 (comment
 
-  (data/create-entity (user/system :db-conn) (:txn-data {:event/name "New event-2"}))
+  (data/create-entity (:dbconn user/system) (:txn-data {:event/name "New event-2"}))
 
-  (data/create-entity (user/system :db-conn) (:txn-data req-body))
+  (data/create-entity (:dbconn user/system) (:txn-data req-body))
+
+  (handle-query (:db-conn user/system))
 
   )

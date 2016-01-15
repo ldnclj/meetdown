@@ -41,7 +41,7 @@
                                    :output-dir   "resources/public/js/out"
                                    :asset-path   "js/out"}}]}
   :profiles {:uberjar {:aot :all}
-             :dev {
+             :dev {:source-paths ["dev"]
                    :dependencies [[ring/ring-mock "0.3.0"]
                                   [org.clojure/tools.namespace "0.2.3"]
                                   [org.clojure/java.classpath "0.2.0"]

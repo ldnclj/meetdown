@@ -30,8 +30,15 @@
                (d/resolve-tempid (d/db con) (:tempids tx)
                                  (d/tempid :db.part/user -1000001)))))
 
-(defn to-ent "Takes a db id and connection and returns the entity"
-  [conn id] (-> conn d/db (d/entity id)))
+(defn to-ent
+  "Takes a db id and connection and returns the entity"
+  [conn id]
+  (-> conn d/db (d/entity id)))
+
+(defn get-entity
+  "Takes a db id and connection and returns a fully hydrated entity"
+  [conn id]
+  (d/touch (to-ent conn id)))
 
 (defn get-events [db-conn]
   (let [db (d/db db-conn)]
@@ -43,7 +50,11 @@
 
 
 (comment
-  (get-events (get-in meetdown.user/system [:dbconn]))
+  (get-events (get-in user/system [:dbconn]))
+
+  (database (:dbconn user/system))
+
+  system/user
 
   (create-entity (:dbconn meetdown.user/system) {:event/name "Newest event"})
 

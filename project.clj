@@ -18,7 +18,6 @@
                  [sablono "0.3.4"]
                  [com.taoensso/timbre "4.2.0"]
                  [cljs-http "0.1.37"]
-                 ;;[cljsjs/react "0.13.3-1"]
                  [reagent "0.5.0"]
                  [reagent-utils "0.1.5"]
                  [prone "0.8.2"]
@@ -33,20 +32,20 @@
   :plugins [[lein-environ "1.0.0"]
             [lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0-1"]]
-  :cljsbuild {:builds [{:id "dev"
-                        :source-paths ["src/cljs" "env/prod/cljs"]
-                        :figwheel true
-                        :compiler {:main meetdown.prod
-                                   :output-to    "resources/public/js/app.js"
-                                   :output-dir   "resources/public/js/out"
-                                   :asset-path   "js/out"}}]}
+  :cljsbuild {:builds {:app {:source-paths ["src/cljs" "env/prod/cljs"]
+                             :compiler {:main         meetdown.load
+                                        :output-to    "resources/public/js/app.js"
+                                        :output-dir   "resources/public/js/out"
+                                        :asset-path   "js/out"
+                                        }}}}
   :profiles {:uberjar {:aot :all}
              :dev {:source-paths ["dev"]
                    :dependencies [[ring/ring-mock "0.3.0"]
                                   [org.clojure/tools.namespace "0.2.3"]
                                   [org.clojure/java.classpath "0.2.0"]
                                   [figwheel-sidecar "0.5.0-1"]
-                                  [com.cemerick/piggieback "0.2.1"]]}
+                                  [com.cemerick/piggieback "0.2.1"]]
+                   :cljsbuild {:builds {:app {:figwheel true}}}}
              :repl {:plugins [[cider/cider-nrepl "0.10.0"]]}}
   :repl-options {:init-ns user
                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]})

@@ -22,6 +22,7 @@
     {:body (case (:type req-body)
              :get-events   (data/get-events db-conn)
              :get-event    (let [id (get-in req-body [:txn-data :db/id])]
+                             (debug "get-event for id=" id)
                              (data/get-entity db-conn id))
              :create-event (data/create-entity db-conn (:txn-data req-body))
              :create-user  (data/create-entity db-conn (:txn-data req-body)))}))

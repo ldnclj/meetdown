@@ -16,7 +16,6 @@
                            :description ""
                            :date ""
                            :speaker ""} :saved? false}))
-(defonce server-state (atom {}))
 (defonce click-count (atom 0))
 
 (defonce event-channel (chan))
@@ -43,7 +42,7 @@
              {:params          {:type :get-event
                                 :txn-data {:db/id (long id)}}
               :handler         (fn [response]
-                                 (swap! server-state assoc :event response))
+                                 (swap! state assoc :event response))
               :error-handler   (fn [& args] (println "get-event failed" args))
               :format          (ajax-edn/edn-request-format)
               :response-format (ajax-edn/edn-response-format)}))
@@ -67,8 +66,7 @@
       (println event-msg)
       (case (:type event-msg)
         :create-event (post-event (:event event-msg))
-        :get-event    (println "***** ID = " (:id event-msg))
-)
+        :get-event    (println "***** ID = " (:id event-msg)))
       (recur))))
 
 ;;--------------------------
@@ -197,7 +195,6 @@
                  :align-items :center}}
    [:h2 "Add a new event"]
    [new-event-form]
-   [:div [:p "Server state " (:event @server-state)]]
    [home-page-link]])
 
 (defn current-page
@@ -227,7 +224,7 @@
                  :align-items :center}}
    [:h2 "Event : " id]
    [:div
-    (let [event (:event @server-state)]
+    (let [event (:event @state)]
       (when (not= (long id) (:db/id event)) (get-event id))
      (for [attribute event]
        (event-row attribute)))]

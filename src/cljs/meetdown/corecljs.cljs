@@ -37,7 +37,6 @@
 (defn get-event
   "Get an event from the server"
   [id]
-  (println "event id = " id)
   (ajax/POST "/q"
              {:params          {:type :get-event
                                 :txn-data {:db/id (long id)}}
@@ -63,10 +62,9 @@
 (defonce handle-event
   (go-loop []
     (let [event-msg (<! event-channel)]
-      (println event-msg)
       (case (:type event-msg)
         :create-event (post-event (:event event-msg))
-        :get-event    (println "***** ID = " (:id event-msg)))
+        :get-event    (get-event  (:id event-msg)))
       (recur))))
 
 ;;--------------------------
@@ -225,7 +223,6 @@
    [:h2 "Event : " id]
    [:div
     (let [event (:event @state)]
-      (when (not= (long id) (:db/id event)) (get-event id))
      (for [attribute event]
        (event-row attribute)))]
    [create-event-link]
@@ -241,8 +238,9 @@
 (secretary/defroute "/new-event" []
   (session/put! :current-page #'new-event))
 
-(secretary/defroute "/event/:id" {:as params}
-  (session/put! :current-page [#'show-event (:id params)]))
+(secretary/defroute "/event/:id" [id]
+  (when (not= (long id) (:db/id (:event @state))) (go (>! event-channel {:type :get-event :id id})) nil)
+  (session/put! :current-page [#'show-event id]))
 
 ;; -------------------------
 ;; History

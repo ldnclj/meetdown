@@ -28,24 +28,24 @@
                  [cljs-ajax "0.5.1"]]
   :main meetdown.core
   :target-path "target/%s"
+  :clean-targets ^{:protect false} ["resources/public/js" :target]
   :source-paths ["src/clj"]
   :plugins [[lein-environ "1.0.0"]
             [lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0-1"]]
-  :cljsbuild {:builds {:app {:source-paths ["src/cljs" "env/prod/cljs"]
+  :cljsbuild {:builds {:app {:source-paths ["src/cljs"]
+                             :figwheel true
                              :compiler {:main         meetdown.load
                                         :output-to    "resources/public/js/app.js"
                                         :output-dir   "resources/public/js/out"
-                                        :asset-path   "js/out"
-                                        }}}}
+                                        :asset-path   "js/out"}}}}
   :profiles {:uberjar {:aot :all}
-             :dev {:source-paths ["dev"]
+             :dev {:source-paths ["dev" "src/cljs"]
                    :dependencies [[ring/ring-mock "0.3.0"]
                                   [org.clojure/tools.namespace "0.2.3"]
                                   [org.clojure/java.classpath "0.2.0"]
                                   [figwheel-sidecar "0.5.0-1"]
                                   [com.cemerick/piggieback "0.2.1"]]
-                   :cljsbuild {:builds {:app {:figwheel true}}}}
-             :repl {:plugins [[cider/cider-nrepl "0.10.0"]]}}
+                   :cljsbuild {:builds {:app {:figwheel true}}}}}
   :repl-options {:init-ns user
                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]})

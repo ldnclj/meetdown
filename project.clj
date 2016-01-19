@@ -33,19 +33,24 @@
   :plugins [[lein-environ "1.0.0"]
             [lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0-1"]]
-  :cljsbuild {:builds {:app {:source-paths ["src/cljs"]
-                             :figwheel true
-                             :compiler {:main         meetdown.load
-                                        :output-to    "resources/public/js/app.js"
-                                        :output-dir   "resources/public/js/out"
-                                        :asset-path   "js/out"}}}}
+  :cljsbuild {:builds
+              {:dev {:source-paths ["src/cljs"]
+                     :figwheel true
+                     :compiler {:main         meetdown.load
+                                :output-to    "resources/public/js/app.js"
+                                :output-dir   "resources/public/js/out"
+                                :asset-path   "js/out"}}
+               :prod {:source-paths ["src/cljs"]
+                      :compiler {:main         meetdown.load
+                                 :output-to    "resources/public/js/app.js"
+                                 :output-dir   "resources/public/js/compiled/out"
+                                 :asset-path   "js/compiled/out"}}}}
   :profiles {:uberjar {:aot :all}
              :dev {:source-paths ["dev" "src/cljs"]
                    :dependencies [[ring/ring-mock "0.3.0"]
                                   [org.clojure/tools.namespace "0.2.3"]
                                   [org.clojure/java.classpath "0.2.0"]
                                   [figwheel-sidecar "0.5.0-1"]
-                                  [com.cemerick/piggieback "0.2.1"]]
-                   :cljsbuild {:builds {:app {:figwheel true}}}}}
+                                  [com.cemerick/piggieback "0.2.1"]]}}
   :repl-options {:init-ns user
                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]})

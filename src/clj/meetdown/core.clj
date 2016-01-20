@@ -2,7 +2,8 @@
   (:require [com.stuartsierra.component :as component]
             [meetdown
              [data :as d]
-             [http :as h]]))
+             [http :as h]])
+  (:gen-class))
 
 (def config {:dburi "datomic:mem://meetdown"
              :server {:port 3000}})

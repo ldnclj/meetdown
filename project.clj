@@ -34,18 +34,23 @@
             [lein-cljsbuild "1.1.2"]
             [lein-figwheel "0.5.0-1"]]
   :cljsbuild {:builds
-              {:dev {:source-paths ["src/cljs"]
-                     :figwheel true
-                     :compiler {:main         meetdown.load
-                                :output-to    "resources/public/js/app.js"
-                                :output-dir   "resources/public/js/out"
-                                :asset-path   "js/out"}}
-               :prod {:source-paths ["src/cljs"]
-                      :compiler {:main         meetdown.load
-                                 :output-to    "resources/public/js/app.js"
-                                 :output-dir   "resources/public/js/compiled/out"
-                                 :asset-path   "js/compiled/out"}}}}
-  :profiles {:uberjar {:aot :all}
+              [{:id "dev"
+                :source-paths ["src/cljs"]
+                :figwheel true
+                :compiler {:main         "meetdown.load"
+                           :output-to    "resources/public/js/app.js"
+                           :output-dir   "resources/public/js/out"
+                           :asset-path   "js/out"}}]}
+  :profiles {:uberjar {:aot :all
+                       :cljsbuild {:builds
+                                   [{:source-paths ["src/cljs"]
+                                     :jar true
+                                     :compiler {:output-to "resources/public/js/app.js"
+                                                :output-dir "resources/public/js/prod"
+                                                :main "meetdown.load"
+                                                :asset-path "/js/prod"
+                                                :optimizations :advanced}}]}
+                       :prep-tasks ["javac" "compile" ["with-profile" "uberjar" "cljsbuild" "once"]]}
              :dev {:source-paths ["dev" "src/cljs"]
                    :dependencies [[ring/ring-mock "0.3.0"]
                                   [org.clojure/tools.namespace "0.2.3"]

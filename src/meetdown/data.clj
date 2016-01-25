@@ -42,24 +42,25 @@
 
 (comment
 
-  (database (get user/system :dbconn))
-  (get-events (database (get-in user/system [:dbconn])))
-  (create-entity (:dbconn user/system) {:event/name "Newest event"})
-  (to-ent (database (get-in user/system [:dbconn])) 17592186045418)
+  (database (get-in user/system [:db-component :connection]))
+  (get-events (database (get-in user/system [:db-component :connection])))
+  (create-entity (get-in user/system [:db-component :connection]) {:event/name "Newest event"})
+  (to-ent (database (get-in user/system [:db-component :connection])) 17592186045418)
 
-  (let [dbconn (:dbconn user/system)
+  (let [dbconn (get-in user/system [:db-component :connection]) (:dbconn user/system)
         id     (create-entity dbconn {:event/name "Newest event"})
-        db (database dbconn)]
+        db     (database dbconn)]
     (d/touch (d/entity db id)))
 
-  (let [dbconn (:dbconn user/system)
+  (let [dbconn (get-in user/system [:db-component :connection])
         id (create-entity dbconn {:event/name "Newest event"})
         db (database dbconn)]
     (to-ent db id))
 
 
 
-  (d/transact (:db-conn meetdown.user/system) [{:db/id #db/id[:db.part/user]
-                                           :event/name "ProCloDo Dojo 20 Novemnber 2015"}])
+  (d/transact (get-in user/system [:db-component :connection])
+    [{:db/id #db/id[:db.part/user]
+      :event/name "ProCloDo Dojo 20 Novemnber 2015"}])
 
   )

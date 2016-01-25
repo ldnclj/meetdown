@@ -51,16 +51,17 @@
       (rmd/wrap-defaults (-> rmd/site-defaults
                              (assoc-in [:security :anti-forgery] false)))))
 
-(defrecord Server-component [server-options dbconn web-server]
+(defrecord Server-component [server-options db-component web-server]
   component/Lifecycle
   (start [component]
     (println "Starting http-kit")
-    (let [server (http/run-server (app dbconn) server-options)]
+    (let [server (http/run-server (app (:connection db-component)) server-options)]
       (assoc component :web-server server)))
   (stop [component]
     (println "Shutting down http-kit")
     (let [server (:web-server component)]
-      (server :timeout 100))))
+      (server :timeout 100))
+    (assoc component :web-server nil)))
 
 (defn new-server [server-options]
   (map->Server-component {:server-options server-options}))

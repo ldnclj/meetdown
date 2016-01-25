@@ -11,11 +11,11 @@
   component/Lifecycle
   (start [component]
     (println "Starting Datomic connection for " dburi)
-    (let [conn (d/setup-and-connect-to-db dburi)]
-      conn))
+    (assoc component :connection (d/setup-and-connect-to-db dburi)))
   (stop [component]
     (println "Stopping Datomic connection")
-    (d/close-db)))
+    (d/close-db)
+    (assoc component :connection nil)))
 
 (defn new-database [dburi]
   (map->Datomic-connection-component {:dburi dburi}))
@@ -24,17 +24,16 @@
   (let [{:keys [dburi server]} config]
     (println dburi)
     (component/system-map
-     :dbconn  (new-database dburi)
-     :app     (component/using
-               (h/new-server server)
-               [:dbconn]))))
+     :db-component (new-database dburi)
+     :app          (component/using
+                     (h/new-server server)
+                     [:db-component]))))
 
 (defn -main []
-  (component/start
-   (meetdown-system config)))
+  (component/start (meetdown-system config)))
 
 (comment
-  ;; Start system by running (-main) or (meetdown.user/go). Use (meetdown.user/reset) to reload.
+  ;; Start system by running (-main) or (user/go). Use (user/reset) to reload.
   ;; To create data run transact in comment in data.clj
   ;; To fetch events -
   ;;    curl -X POST -d "{:type :get-events}" http://localhost:3000/q --header "Content-Type:application/edn"

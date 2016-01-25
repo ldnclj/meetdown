@@ -18,11 +18,11 @@
                  [hiccup "1.0.5"]
                  [org.clojure/core.match "0.3.0-alpha4"]]
   :main meetdown.core
-  :source-paths ["src/clj"]
+  :source-paths ["src"]
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0-1"]]
   :cljsbuild {:builds [{:id "dev"
-                        :source-paths ["src/cljs"]
+                        :source-paths ["src-cljs"]
                         :figwheel {:on-jsload    "meetdown.cljscore/reload-hook"}
                         :compiler {:main         meetdown.cljscore
                                    :output-to    "resources/public/js/compiled/meetdown.js"
@@ -30,7 +30,7 @@
                                    :asset-path   "js/compiled/out"
                                    :source-map-timestamp true}}]}
   :profiles {:uberjar {:aot :all}
-             :dev {:source-paths ["dev" "src/cljs"]
+             :dev {:source-paths ["dev" "src-cljs"]
                    :dependencies [[ring/ring-mock "0.3.0"]
                                   [org.clojure/tools.namespace "0.2.3"]
                                   [org.clojure/java.classpath "0.2.0"]

@@ -49,21 +49,11 @@
       (rmd/wrap-defaults (-> rmd/site-defaults
                              (assoc-in [:security :anti-forgery] false)))))
 
-(defrecord Handler-component [dbconn]
-  component/Lifecycle
-  (start [component]
-    (println "Starting handler routes")
-    (make-handler dbconn))
-  (stop [component]))
-
-(defn new-handler []
-  (map->Handler-component {}))
-
-(defrecord Server-component [server-options handler]
+(defrecord Server-component [server-options db-component]
   component/Lifecycle
   (start [component]
     (println "Starting http-kit")
-    (let [server (http/run-server handler server-options)]
+    (let [server (http/run-server (make-handler (:connection db-component)) server-options)]
       (assoc component :web-server server)))
   (stop [component]
     (println "Shutting down http-kit")

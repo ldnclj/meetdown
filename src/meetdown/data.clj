@@ -43,13 +43,13 @@
 
 
 (comment
-  (get-events (get-in meetdown.user/system [:dbconn]))
+  (get-events (get-in user/system [:db-component :connection]))
 
-  (create-entity (:dbconn meetdown.user/system) {:event/name "Newest event"})
+  (create-entity (-> user/system :db-component :connection) {:event/name "Newest event"})
 
 
 
-  (d/transact (:db-conn meetdown.user/system) [{:db/id #db/id[:db.part/user]
+  (d/transact (-> user/system :db-component :connection) [{:db/id #db/id[:db.part/user]
                                            :event/name "ProCloDo Dojo 20 Novemnber 2015"}])
 
   )

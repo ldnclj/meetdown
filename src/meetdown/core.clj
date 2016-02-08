@@ -12,10 +12,11 @@
   (start [component]
     (println "Starting Datomic connection for " dburi)
     (let [conn (d/setup-and-connect-to-db dburi)]
-      conn))
+      (assoc component :connection conn)))
   (stop [component]
     (println "Stopping Datomic connection")
-    (d/close-db)))
+    (d/close-db)
+    (assoc component :connection nil)))
 
 (defn new-database [dburi]
   (map->Datomic-connection-component {:dburi dburi}))
@@ -24,13 +25,13 @@
   (let [{:keys [dburi server]} config]
     (println dburi)
     (component/system-map
-     :dbconn  (new-database dburi)
-     :handler (component/using
-               (h/new-handler)
-               [:dbconn])
-     :app    (component/using
-              (h/new-server server)
-              [:handler]))))
+     :db-component  (new-database dburi)
+     :handler       (component/using
+                     (h/new-handler)
+                     [:db-component])
+     :app           (component/using
+                     (h/new-server server)
+                     [:db-component]))))
 
 (defn -main []
   (component/start

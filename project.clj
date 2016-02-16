@@ -16,6 +16,7 @@
                  [org.clojure/core.async "0.2.374"]
                  [petrol "0.1.2"]
                  [hiccup "1.0.5"]
+                 [com.taoensso/timbre "4.2.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]]
   :main meetdown.core
   :source-paths ["src"]

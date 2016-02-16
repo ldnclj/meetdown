@@ -1,5 +1,8 @@
 (ns meetdown.data
-  (require [datomic.api :only [q db] :as d]))
+  (:require [datomic.api :only [q db] :as d]
+            [taoensso.timbre :as timbre]))
+
+(timbre/refer-timbre)
 
 (defn database [db-conn] (d/db db-conn))
 
@@ -42,6 +45,7 @@
 
 (comment
 
+
   (database (get-in user/system [:db-component :connection]))
   (get-events (database (get-in user/system [:db-component :connection])))
   (create-entity (get-in user/system [:db-component :connection]) {:event/name "Newest event"})
@@ -62,5 +66,15 @@
   (d/transact (get-in user/system [:db-component :connection])
     [{:db/id #db/id[:db.part/user]
       :event/name "ProCloDo Dojo 20 Novemnber 2015"}])
+
+  (get-events (get-in user/system [:db-component :connection]))
+
+  (create-entity (-> user/system :db-component :connection) {:event/name "Newest event"})
+
+
+
+  (d/transact (-> user/system :db-component :connection) [{:db/id #db/id[:db.part/user]
+                                           :event/name "ProCloDo Dojo 20 Novemnber 2015"}])
+
 
   )

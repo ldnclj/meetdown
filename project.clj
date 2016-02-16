@@ -7,37 +7,36 @@
                  [com.stuartsierra/component "0.3.1"]
                  [com.datomic/datomic-free "0.9.5302" :exclusions [joda-time]]
                  [http-kit "2.1.19"]
-                 [ring/ring-core "1.3.2"]
                  [ring-middleware-format "0.7.0"]
                  [ring/ring-defaults "0.1.5"]
                  [compojure "1.3.4"]
+                 [reagent "0.5.1"]
+                 [cljs-http "0.1.38"]
+                 [org.clojure/clojurescript "1.7.170" :exclusions [org.apache.ant/ant]]
+                 [org.clojure/core.async "0.2.374"]
+                 [petrol "0.1.2"]
                  [hiccup "1.0.5"]
-                 [com.cognitect/transit-clj "0.8.283"]
-                 [ring/ring-json "0.3.1"]
-                 [ring/ring-mock "0.2.0"]
-                 [org.clojure/clojurescript "1.7.48"]
-                 [sablono "0.3.4"]
                  [com.taoensso/timbre "4.2.0"]
-                 [cljs-http "0.1.37"]]
+                 [org.clojure/core.match "0.3.0-alpha4"]]
   :main meetdown.core
-  :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}
-             :dev {:source-paths ["dev"]
-                   :figwheel     {:nrepl-port 7888}
-                   :dependencies [[org.clojure/tools.namespace "0.2.3"]
-                                  [org.clojure/java.classpath "0.2.0"]
-                                  [matcha "0.1.0"]]}
-                   :repl-options {:init-ns user}}
-  :cljsbuild {
-              :builds [{
-                        ; The path to the top-level ClojureScript source directory:
+  :source-paths ["src"]
+  :plugins [[lein-cljsbuild "1.1.1"]
+            [lein-figwheel "0.5.0-1"]]
+  :cljsbuild {:builds [{:id "dev"
                         :source-paths ["src-cljs"]
-                        ; The standard ClojureScript compiler options:
-                        ; (See the ClojureScript compiler documentation for details.)
-                        :figwheel :true
-                        :compiler {
-                                   :output-to "public/main.js"  ; default: target/cljsbuild-main.js
-                                   :output-dir "public/out"
-                                   :optimizations :none
-                                   :pretty-print true
-                                   :verbose true}}]})
+                        :figwheel {:on-jsload    "meetdown.cljscore/reload-hook"}
+                        :compiler {:main         meetdown.cljscore
+                                   :output-to    "resources/public/js/compiled/meetdown.js"
+                                   :output-dir   "resources/public/js/compiled/out"
+                                   :asset-path   "js/compiled/out"
+                                   :source-map-timestamp true}}]}
+  :profiles {:uberjar {:aot :all}
+             :dev {:source-paths ["dev" "src-cljs"]
+                   :dependencies [[ring/ring-mock "0.3.0"]
+                                  [org.clojure/tools.namespace "0.2.3"]
+                                  [org.clojure/java.classpath "0.2.0"]
+                                  [figwheel-sidecar "0.5.0-1"]
+                                  [com.cemerick/piggieback "0.2.1"]]}
+             :repl {:plugins [[cider/cider-nrepl "0.10.0"]]}}
+  :repl-options {:init-ns user
+                 :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]})

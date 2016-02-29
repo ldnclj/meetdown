@@ -46,11 +46,11 @@
      ]]))
 
 (defn make-router [db-conn]
-  (-> (routes
-       (resources "/")
-       (GET "/" [] home-page)
-       (POST "/q" []
-             (handle-query db-conn)))))
+  (routes
+   (resources "/")
+   (GET "/" [] home-page)
+   (POST "/q" []
+         (handle-query db-conn))))
 
 (def default-config
   {:params {:urlencoded true
@@ -72,8 +72,7 @@
   (-> (make-router db-conn)
       (wrap-log-request)
       (wrap-restful-format :formats [:edn :transit-json])
-      (rmd/wrap-defaults (-> rmd/site-defaults
-                             (assoc-in [:security :anti-forgery] false)))))
+      (rmd/wrap-defaults (assoc-in rmd/site-defaults [:security :anti-forgery] false))))
 
 
 (defrecord Server-component [server-options db-component]

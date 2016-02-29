@@ -21,7 +21,9 @@
   :main meetdown.core
   :source-paths ["src"]
   :plugins [[lein-cljsbuild "1.1.1"]
-            [lein-figwheel "0.5.0-1"]]
+            [lein-figwheel "0.5.0-1"]
+            [lein-cloverage "1.0.6"]
+            [lein-kibit "0.1.2"]]
   :cljsbuild {:builds [{:id "dev"
                         :source-paths ["src-cljs"]
                         :figwheel {:on-jsload    "meetdown.cljscore/reload-hook"}

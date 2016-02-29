@@ -1,6 +1,9 @@
 # meetdown
 Event management system
 
+## Build Status
+
+[![Circle CI](https://circleci.com/gh/ldnclj/meetdown.svg?style=svg)](https://circleci.com/gh/ldnclj/meetdown)
 
 ## Status
 
@@ -98,6 +101,15 @@ Questions I've got
     * PATCH /event/ID => Add speakers and/or attendees to event?
 
 ## Usage
+
+To run the entire application:
+```
+$ lein run
+```
+
+Then open a browser and follow `http://localhost:3000`.
+
+To run the server in a REPL:
 
 ```
 $ lein repl

@@ -21,7 +21,7 @@
    (for [event-attr server-state]
      (let [attr-name (-> event-attr first name)]
        [:div.row {:key attr-name}
-        [:label.col-md-3 (-> attr-name (str ":"))]
+        [:label.col-md-3 (str attr-name ":")]
         [:div.col-md-9 (second event-attr)]]))])
 
 (defn- event-form

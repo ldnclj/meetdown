@@ -9,18 +9,18 @@
 (defn create-event
   [event]
   (let [rest-event (reduce (add-ns "event") {} event)
-        event-channel (->> (http/post "http://localhost:3000/q"
-                                      {:with-credentials? false
-                                       :edn-params {:type :create-event
-                                                    :txn-data rest-event}})
-                           (petrol/wrap m/map->CreateEventResults))]
+        event-channel (petrol/wrap m/map->CreateEventResults
+                                   (http/post "http://localhost:3000/q"
+                                              {:with-credentials? false
+                                               :edn-params {:type :create-event
+                                                            :txn-data rest-event}}))]
     event-channel))
 
 (defn find-event
   [id]
-  (let [post-channel (->> (http/post "http://localhost:3000/q"
-                                     {:with-credentials? false
-                                      :edn-params {:type :get-event
-                                                   :txn-data {:event/id id}}})
-                          (petrol/wrap m/map->FindEventResults))]
+  (let [post-channel (petrol/wrap m/map->FindEventResults
+                                  (http/post "http://localhost:3000/q"
+                                             {:with-credentials? false
+                                              :edn-params {:type :get-event
+                                                           :txn-data {:event/id id}}}))]
     post-channel))

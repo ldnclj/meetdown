@@ -37,7 +37,7 @@
 (extend-protocol Message
   m/CreateEventResults
   (process-message [response app]
-    (let [event-id (-> (extract-event response) :id)
+    (let [event-id (:id (extract-event response))
           new-app  (-> app
                        (assoc-in [:view :handler] :event)
                        (assoc-in [:view :route-params :id] event-id)

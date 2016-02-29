@@ -37,10 +37,11 @@
 
 (defn get-events [db]
   (d/pull-many db [:*]
-               (->> (d/q '{:find [?event-id]
+               (map
+                first
+                (d/q '{:find [?event-id]
                            :where [[?event-id :event/name]]}
-                         db)
-                    (map first))))
+                         db))))
 
 
 (comment

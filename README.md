@@ -102,12 +102,16 @@ Questions I've got
 
 ## Usage
 
+### Run full application
+
 To run the entire application:
 ```
 $ lein run
 ```
 
 Then open a browser and follow `http://localhost:3000`.
+
+### Run server
 
 To run the server in a REPL:
 
@@ -138,7 +142,46 @@ Shutting down http-kit
 user=>
 ```
 
-You can use the following curl commands from a terminal session to
+### Run client
+
+To run the client in figwheel:
+
+```
+lein repl
+user=> (use 'figwheel-sidecar.repl-api)
+nil
+user=> (do (start-figwheel!) nil)
+Figwheel: Starting server at http://localhost:3449
+Figwheel: Watching build - dev
+Compiling "resources/public/js/compiled/meetdown.js" from ["src-cljs"]...
+Successfully compiled "resources/public/js/compiled/meetdown.js" in 5.575 seconds.
+nil
+user=> (cljs-repl)
+Launching ClojureScript REPL for build: dev
+Figwheel Controls:
+          (stop-autobuild)                ;; stops Figwheel autobuilder
+          (start-autobuild [id ...])      ;; starts autobuilder focused on optional ids
+          (switch-to-build id ...)        ;; switches autobuilder to different build
+          (reset-autobuild)               ;; stops, cleans, and starts autobuilder
+          (reload-config)                 ;; reloads build config and resets autobuild
+          (build-once [id ...])           ;; builds source one time
+          (clean-builds [id ..])          ;; deletes compiled cljs target files
+          (print-config [id ...])         ;; prints out build configurations
+          (fig-status)                    ;; displays current state of system
+  Switch REPL build focus:
+          :cljs/quit                      ;; allows you to switch REPL to another build
+    Docs: (doc function-name-here)
+    Exit: Control+C or :cljs/quit
+ Results: Stored in vars *1, *2, *3, *e holds last exception object
+Prompt will show when Figwheel connects to your application
+To quit, type: :cljs/quit
+nil
+cljs.user=>
+```
+
+### Send requests using cURL
+
+You can use the following cURL commands from a terminal session to
 send requests to the server.
 
 To create a new event:

@@ -2,6 +2,7 @@
   (:require [clojure.test :refer :all]
             [clojure.walk :refer [keywordize-keys]]
             [meetdown.core :as app]
+            [meetdown.http :as http]
             [com.stuartsierra.component :as component]
             [ring.mock.request :refer [request body content-type header]])
   (:import [javax.servlet.http HttpServletResponse]))
@@ -21,12 +22,12 @@
 (use-fixtures :each with-test-system)
 
 (deftest test-infrastructure-sanity-check []
-  (is (= [:dbconn :handler :app] (keys @test-system))))
+  (is (= [:db-component :app] (keys @test-system))))
 
 (def create-event-url "http://localhost:4000/q")
 
 (defn http-post [url data]
-  (let [handler (get-in @test-system [:app :handler])]
+  (let [handler (http/make-handler (get-in @test-system [:app :db-component :connection]))]
     (keywordize-keys
      (handler (-> (request :post url)
                   (body (prn-str data))
@@ -66,6 +67,6 @@
 ;; TODO Would be neater to blank the database before this test
 (deftest get-events-then-event-exists []
   (let [event-name "test-event-name"
-        id         (extract-body (call-create-event event-name))
+        id         (:event/id (extract-body (call-create-event event-name)))
         events     (extract-body (call-get-events))]
     (is (has? {:db/id id :event/name event-name} events))))

@@ -45,6 +45,16 @@
 
 (comment
 
+  ;; grab schema
+  (defn get-user-schema [conn]
+    (d/q '[:find ?id
+           :where [?e :db/ident ?id]
+           [_ :db.install/attribute ?e]
+           [?e :db.install/partition :db.part/db]]
+         (d/db conn)))
+
+  (get-user-schema (get-in user/system [:db-component :connection]))
+
 
   (database (get-in user/system [:db-component :connection]))
   (get-events (database (get-in user/system [:db-component :connection])))
@@ -64,8 +74,8 @@
 
 
   (d/transact (get-in user/system [:db-component :connection])
-    [{:db/id #db/id[:db.part/user]
-      :event/name "ProCloDo Dojo 20 Novemnber 2015"}])
+              [{:db/id #db/id[:db.part/user]
+                :event/name "ProCloDo Dojo 20 Novemnber 2015"}])
 
   (get-events (get-in user/system [:db-component :connection]))
 
@@ -74,7 +84,7 @@
 
 
   (d/transact (-> user/system :db-component :connection) [{:db/id #db/id[:db.part/user]
-                                           :event/name "ProCloDo Dojo 20 Novemnber 2015"}])
+                                                           :event/name "ProCloDo Dojo 20 Novemnber 2015"}])
 
 
   )

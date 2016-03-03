@@ -58,3 +58,21 @@
               id (:db/id (create-entity @test-conn another-event))]
           (is (= (:event/name (to-ent (:db-after @tx) id))
                    (:event/name another-event))))))))
+
+(deftest test-create-user
+  (testing "Create a new user"
+    (with-redefs [meetdown.data/store-entity (speculate)]
+      (let [user {:user/email "test@gmail.com" :user/surname "User" :user/firstname "Test"}
+            new-user-id (:db/id (create-entity @test-conn user))]
+        (is (not (zero? new-user-id))))))
+  (testing "Create a new user and get it again"
+    (with-redefs [meetdown.data/store-entity (speculate)]
+      (let [user {:user/email "test@gmail.com" :user/surname "User" :user/firstname "Test"}
+            user-tx (create-entity @test-conn user)
+            new-user-id (:db/id user-tx)
+            db (:db user-tx)
+            actual-user (to-ent db new-user-id)]
+        (is (= (:db/id actual-user) new-user-id))
+        (is (= (:user/email actual-user) (:user/email user)))
+        (is (= (:user/firstname actual-user) (:user/firstname user)))
+        (is (= (:user/surname actual-user) (:user/surname user)))))))

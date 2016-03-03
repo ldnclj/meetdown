@@ -24,7 +24,7 @@
 (deftest test-infrastructure-sanity-check
   (is (= [:db-component :app] (keys @test-system))))
 
-(def create-event-url "http://localhost:4000/q")
+(def query-entity-url "http://localhost:4000/q")
 
 (defn http-post [url data]
   (let [handler (http/make-handler (get-in @test-system [:app :db-component :connection]))]
@@ -40,13 +40,16 @@
     (slurp (response :body)))))
 
 (defn- call-create-event [name]
-  (http-post "http://localhost:4000/q" {:type :create-event :txn-data {:event/name name}}))
+  (http-post query-entity-url {:type :create-event :txn-data {:event/name name}}))
+
+(defn- call-create-user [email]
+  (http-post query-entity-url {:type :create-user :txn-data {:user/email email}}))
 
 (defn- call-get-events []
-  (http-post "http://localhost:4000/q" {:type :get-events}))
+  (http-post query-entity-url {:type :get-events}))
 
 (defn- call-get-event [id]
-  (http-post "http://localhost:4000/q" {:type :get-event :txn-data {:db/id id}}))
+  (http-post query-entity-url {:type :get-event :txn-data {:db/id id}}))
 
 (deftest create-event-then-metadata-and-headers-set
   (let [response (call-create-event "test-event-name")
@@ -55,8 +58,10 @@
     (is (= (headers :Content-Type) "application/edn; charset=utf-8"))))
 
 (deftest create-event-then-id
-  (let [response (call-create-event "test-event-name")]
-    (is (not (= (extract-body response) nil)))))
+  (let [body (extract-body (call-create-event "test-event-name"))]
+    (is (not= body nil))
+    (is (not (zero? (:db/id body
+                            ))))))
 
 (defn has? [x coll]
   (some #{x} coll))
@@ -70,15 +75,20 @@
 ;; TODO Would be neater to blank the database before this test
 (deftest get-events-then-event-exists
   (let [event-name "test-event-name"
-        id         (:event/id (extract-body (call-create-event event-name)))
+        id         (:db/id (extract-body (call-create-event event-name)))
         events     (extract-body (call-get-events))]
     (is (has? {:db/id id :event/name event-name} events))))
 
 (deftest get-event-when-event-exists
   (let [event-name "my-test-event"
-        id         (:event/id (extract-body (call-create-event event-name)))
+        id         (:db/id (extract-body (call-create-event event-name)))
         actual-event (extract-body (call-get-event id))]
     (is (= {:db/id id :event/name event-name} actual-event))))
+
+(deftest create-user
+  (testing "Create a new user"
+    (let [body (extract-body (call-create-user "newuser@dummy.com"))]
+      (is (not (nil? body))))))
 
 (comment
   (swap! test-system (constantly (app/meetdown-system test-system-config)))

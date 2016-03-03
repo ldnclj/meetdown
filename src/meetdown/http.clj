@@ -81,7 +81,7 @@
     (println "Shutting down http-kit")
     (let [server (:web-server component)]
       (server :timeout 100))
-    (assoc component :web-server nil)))
+    nil))
 
 (defn new-server [server-options]
   (map->Server-component {:server-options server-options}))

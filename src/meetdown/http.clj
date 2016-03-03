@@ -16,12 +16,13 @@
   [db-conn]
   (fn [{req-body :body-params}]
     (let [db (data/database db-conn)]
-      {:body (case (:type req-body)
-               :get-events   (data/get-events db)
-               :create-event {:db/id (:db/id (data/create-entity db-conn (:txn-data req-body)))}
-               :get-event    (->> (get-in req-body [:txn-data :db/id])
-                                  (data/to-ent (data/database db-conn)))
-               :create-user  {:db/id (:db/id (data/create-entity db-conn (:txn-data req-body)))})})))
+      (case (:type req-body)
+        :get-events   {:body (data/get-events db)}
+        :create-event {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data req-body)))}}
+        :get-event    {:body (->> (get-in req-body [:txn-data :db/id])
+                                  (data/to-ent db))}
+        :create-user  {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data req-body)))}}
+        {:status 415 :body (str "Unsupported type - " (:type req-body))}))))
 
 (def home-page
   (html

@@ -12,20 +12,16 @@
             [org.httpkit.server :refer [run-server]]
             [taoensso.timbre :as timbre]))
 
-(timbre/refer-timbre)
-
 (defn- handle-query
   [db-conn]
   (fn [{req-body :body-params}]
     (let [db (data/database db-conn)]
-     {:body (case (:type req-body)
-              :get-events   (data/get-events db)
-              :create-event (let [id (:db/id (data/create-entity db-conn (:txn-data req-body)))]
-                              {:event/id id})
-              :get-event    (let [id (get-in req-body [:txn-data :db/id])
-                                  entity (data/to-ent (data/database db-conn) id)]
-                              entity)
-              :create-user  (data/create-entity db-conn (:txn-data req-body)))})))
+      {:body (case (:type req-body)
+               :get-events   (data/get-events db)
+               :create-event {:db/id (:db/id (data/create-entity db-conn (:txn-data req-body)))}
+               :get-event    (->> (get-in req-body [:txn-data :db/id])
+                                  (data/to-ent (data/database db-conn)))
+               :create-user  {:db/id (:db/id (data/create-entity db-conn (:txn-data req-body)))})})))
 
 (def home-page
   (html
@@ -65,7 +61,7 @@
 (defn wrap-log-request
   ([handler]
     (fn [req]
-      (debug "Handling request" req)
+      (timbre/debug "Handling request:" req)
       (handler req))))
 
 (defn make-handler [db-conn]

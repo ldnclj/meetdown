@@ -22,5 +22,5 @@
                                   (http/post "http://localhost:3000/q"
                                              {:with-credentials? false
                                               :edn-params {:type :get-event
-                                                           :txn-data {:event/id id}}}))]
+                                                           :txn-data {:db/id id}}}))]
     post-channel))

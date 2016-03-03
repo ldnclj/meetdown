@@ -22,7 +22,7 @@
               :get-events   (data/get-events db)
               :create-event (let [id (:db/id (data/create-entity db-conn (:txn-data req-body)))]
                               {:event/id id})
-              :get-event    (let [id (get-in req-body [:txn-data :event/id])
+              :get-event    (let [id (get-in req-body [:txn-data :db/id])
                                   entity (data/to-ent (data/database db-conn) id)]
                               entity)
               :create-user  (data/create-entity db-conn (:txn-data req-body)))})))

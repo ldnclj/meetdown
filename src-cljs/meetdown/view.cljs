@@ -32,19 +32,19 @@
     [:input.col-xs-6 {:type :text
                       :placeholder "Event name..."
                       :defaultValue name
-                      :on-change (send-value! ui-channel m/->ChangeEventName)}]]
+                      :on-change (send-value! ui-channel #(m/map->ChangeEvent {:name % :speaker speaker :description description}))}]]
    [:div.row.col-xs-12
     [:label.col-xs-4 "Speaker:"]
     [:input.col-xs-6 {:type :text
                       :placeholder "Speaker..."
                       :defaultValue speaker
-                      :on-change (send-value! ui-channel m/->ChangeEventSpeaker)}]]
+                      :on-change (send-value! ui-channel #(m/map->ChangeEvent {:name name :speaker % :description description}))}]]
    [:div.row.col-xs-12
     [:label.col-xs-4 "Description:"]
     [:textarea.col-xs-6 {:rows 2
                          :placeholder "Description..."
                          :defaultValue description
-                         :on-change (send-value! ui-channel m/->ChangeEventDescription)}]]
+                         :on-change (send-value! ui-channel #(m/map->ChangeEvent {:name name :speaker speaker :description %}))}]]
    [:div.row.col-xs-12
     [:div.col-xs-4
      [:button.btn.btn-success

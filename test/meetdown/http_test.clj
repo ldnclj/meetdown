@@ -102,13 +102,3 @@
                     (request :get "/"))]
       (is (re-find #"<div id=\"app\"" (:body response)))
       (is (re-find #"<script type=\"text/javascript\">addEventListener\(\"load\", meetdown.cljscore.main, false\);</script>" (:body response))))))
-
-
-(comment
-
-  (reset! test-system (component/start (app/meetdown-system test-system-config)))
-  (:body (->
-            (request :post "/q" {:type :unsupported :txn-data {}})
-            ((http/make-handler (get-in @test-system [:app :db-component :connection])))))
-  (component/stop @test-system)
-  )

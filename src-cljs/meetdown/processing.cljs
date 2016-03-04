@@ -5,19 +5,9 @@
             [petrol.core :refer [EventSource Message]]))
 
 (extend-protocol Message
-  m/ChangeEventName
-  (process-message [{:keys [name]} app]
-    (assoc-in app [:event :name] name)))
-
-(extend-protocol Message
-  m/ChangeEventSpeaker
-  (process-message [{:keys [speaker]} app]
-    (assoc-in app [:event :speaker] speaker)))
-
-(extend-protocol Message
-  m/ChangeEventDescription
-  (process-message [{:keys [description]} app]
-    (assoc-in app [:event :description] description)))
+  m/ChangeEvent
+  (process-message [event app]
+    (assoc app :event (merge (:event app) event))))
 
 (extend-protocol Message
   m/CreateEvent

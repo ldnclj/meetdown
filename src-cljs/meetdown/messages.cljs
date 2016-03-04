@@ -6,6 +6,8 @@
 
 (defrecord ChangeEventDescription [description])
 
+(defrecord ChangeEvent [name speaker description])
+
 (defrecord CreateEvent [event])
 
 (defrecord CreateEventResults [body])

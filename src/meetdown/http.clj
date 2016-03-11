@@ -34,10 +34,8 @@
      [:link {:rel "stylesheet" :href "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" :integrity "sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" :crossorigin "anonymous"}]]
     [:body
      [:div#app
-      [:h3 "ClojureScript has not been compiled!"]
-      [:p "please run "
-       [:b "lein figwheel"]
-       " in order to start the compiler"]]
+      [:h3 "Loading...."]
+      [:p "Loading application. Please wait.... "]]
      (include-js "js/compiled/meetdown.js")
      [:script {:type "text/javascript"} "addEventListener(\"load\", meetdown.cljscore.main, false);"]
      ]]))

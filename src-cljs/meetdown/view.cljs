@@ -53,9 +53,7 @@
 
 (defn event-lookup
   [ui-channel view]
-  (println "event-lookup - view = " view)
   (when-let [id (get-in view [:route-params :id])]
-    (println "id = " id)
     (put! ui-channel (m/->FindEvent id))))
 
 (defn root

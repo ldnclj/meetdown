@@ -5,10 +5,6 @@
             [meetdown.messages :refer [FindEvent]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
-(enable-console-print!)
-
-(deftest test-fails (is (= 1 0)))
-
 (deftest test-event-lookup
   (let [c (chan)]
     (v/event-lookup c {:route-params {:id 1234}})

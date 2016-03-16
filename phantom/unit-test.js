@@ -1,6 +1,6 @@
-
+var system = require('system');
 var page = require('webpage').create();
-var url = phantom.args[0];
+var url = system.args[1];
 
 page.onConsoleMessage = function (message) {
     console.log(message);
@@ -22,7 +22,7 @@ page.open(url, function (status) {
     console.log("Running test.");
 
     var failures = page.evaluate(function() {
-        meetdown.test_runner.runner();
+        test_runner.runner();
         return window["test-failures"];
     });
 

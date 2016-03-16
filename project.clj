@@ -23,7 +23,8 @@
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0-1"]
             [lein-cloverage "1.0.6"]
-            [lein-kibit "0.1.2"]]
+            [lein-kibit "0.1.2"]
+            [refactor-nrepl "2.2.0-SNAPSHOT"]]
   :hooks [leiningen.cljsbuild]
   :cljsbuild {:builds [{:id "dev"
                         :source-paths ["src-cljs" "test-cljs"]
@@ -43,7 +44,7 @@
   :test-commands
   {"unit" ["phantomjs" "phantom/unit-test.js" "phantom/unit-test.html"]}}
   :profiles {:uberjar {:aot :all}
-             :dev {:source-paths ["dev" "src-cljs" "test"]
+             :dev {:source-paths ["dev" "src-cljs" "test" "test-cljs"]
                    :dependencies [[ring/ring-mock "0.3.0"]
                                   [lein-doo "0.1.6"]
                                   [org.clojure/tools.namespace "0.2.3"]

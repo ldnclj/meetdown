@@ -1,9 +1,14 @@
 (ns test-runner
   (:require
    [cljs.test :as test :refer-macros [run-tests] :refer [report]]
-   [meetdown.view-test]))
+   [doo.runner :refer-macros [doo-tests]]
+   [meetdown.view-test]
+   [meetdown.processing-test]))
 
 (enable-console-print!)
+
+(doo-tests 'meetdown.view-test
+           'meetdown.processing-test)
 
 (defmethod report [::test/default :summary] [m]
   (println "\nRan" (:test m) "tests containing"
@@ -12,4 +17,7 @@
   (aset js/window "test-failures" (+ (:fail m) (:error m))))
 
 (defn runner []
-  (test/run-tests 'meetdown.view-test))
+  (test/run-tests
+   (test/empty-env ::test/default)
+   'meetdown.processing-test
+   'meetdown.view-test))

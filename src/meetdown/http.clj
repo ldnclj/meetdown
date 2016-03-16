@@ -67,7 +67,7 @@
   (-> (make-router db-conn)
       (wrap-log-request)
       (wrap-restful-format :formats [:edn :transit-json])
-      (rmd/wrap-defaults (assoc-in rmd/site-defaults [:security :anti-forgery] false))))
+      (rmd/wrap-defaults rmd/api-defaults)))
 
 
 (defrecord Server-component [server-options db-component]

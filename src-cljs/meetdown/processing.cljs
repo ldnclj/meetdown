@@ -7,11 +7,12 @@
 (extend-protocol Message
   m/ChangeEvent
   (process-message [event app]
-    (assoc app :event (merge (:event app) event))))
+    (let [event-minus-nils (into {} (remove (comp nil? second) event))]
+      (assoc app :event (merge (:event app) event-minus-nils)))))
 
 (extend-protocol Message
   m/CreateEvent
-  (process-message [_ {:keys [event server-state] :as app}]
+  (process-message [_ app]
     app))
 
 (extend-protocol EventSource
@@ -32,7 +33,7 @@
                        (assoc-in [:view :handler] :event)
                        (assoc-in [:view :route-params :id] event-id)
                        (assoc :event nil))]
-      (.pushState (.-history js/window) "" "event" (str "#" event-id "-event"))
+      (.pushState (.-history js/window) "" "event" (str "#" event-id "-event")) ; TODO Need to remove this side effect from here to view where it belongs.
       new-app)))
 
 (extend-protocol Message

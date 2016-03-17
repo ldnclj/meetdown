@@ -10,6 +10,6 @@ pom.xml.asc
 .hgignore
 .hg/
 /resources/public/js/compiled/*
-/resources/private/js/*
+/resources/private/js
 /out
 .*

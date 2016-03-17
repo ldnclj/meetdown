@@ -3,7 +3,11 @@
              [meetdown.messages :as m]
              [meetdown.processing :as p]
              [petrol.core :refer [process-message watch-channels]]
-             [meetdown.rest :as rest]))
+             [meetdown.rest :as rest]
+             [clojure.test.check :as tc]
+             [clojure.test.check.generators :as gen]
+             [clojure.test.check.properties :as prop :include-macros true]
+             [clojure.test.check.clojure-test :refer-macros [defspec]]))
 
 (deftest test-extract-event
   (testing "Check that extract-event removes :event/ namespace from map returned in response from server"
@@ -94,3 +98,24 @@
           (is (= {:id event-id :name "dummy"} (first event-found)))
           (is (set? event-found))
           (is (= 1 (count event-found))))))))
+
+(def event-map-gen (gen/hash-map :name gen/string :speaker gen/string :description gen/string))
+
+(def event-response-map-gen (gen/hash-map :response event-map-gen))
+
+(def create-event-results-gen (gen/fmap m/->CreateEventResults event-response-map-gen))
+
+(def app-gen (gen/hash-map :event event-map-gen :view (gen/hash-map :handler gen/keyword)))
+
+(defspec create-eventresults-process-message-sets-event-nil
+  100
+  (prop/for-all [create-event-results create-event-results-gen
+                 app app-gen]
+                (nil? (:event (process-message create-event-results app)))))
+
+
+(defspec create-eventresults-process-message-view-handler-is-event
+  100
+  (prop/for-all [create-event-results create-event-results-gen
+                 app app-gen]
+                (= :event (get-in (process-message create-event-results app) [:view :handler]))))

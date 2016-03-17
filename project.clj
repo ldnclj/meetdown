@@ -50,7 +50,8 @@
                                   [org.clojure/tools.namespace "0.2.3"]
                                   [org.clojure/java.classpath "0.2.0"]
                                   [figwheel-sidecar "0.5.0-1"]
-                                  [com.cemerick/piggieback "0.2.1"]]
+                                  [com.cemerick/piggieback "0.2.1"]
+                                  [org.clojure/test.check "0.9.0"]]
                    :plugins [[lein-doo "0.1.6"]]}
              :repl {:plugins [[cider/cider-nrepl "0.10.0"]]}}
   :repl-options {:init-ns user

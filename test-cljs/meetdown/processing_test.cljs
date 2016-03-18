@@ -90,9 +90,14 @@
           (is (set? event-found))
           (is (= 1 (count event-found))))))))
 
+
+;; Property based tests for processing ns
+
 (def event-map-gen (gen/hash-map :name gen/string :speaker gen/string :description gen/string))
 
 (def event-response-map-gen (gen/hash-map :response event-map-gen))
+
+(def create-event-gen (gen/fmap m/->CreateEvent event-map-gen))
 
 (def create-event-results-gen (gen/fmap m/->CreateEventResults event-response-map-gen))
 
@@ -110,3 +115,14 @@
   (prop/for-all [create-event-results create-event-results-gen
                  app app-gen]
                 (= :event (get-in (process-message create-event-results app) [:view :handler]))))
+
+(defspec create-event-watch-channels-returns-set
+  100
+  (prop/for-all [create-event create-event-gen
+                 app app-gen]
+                (with-redefs [meetdown.rest/create-event (fn [e] e)]
+                  (let [app-with-event (assoc app :event (:event create-event))
+                        channel-resp   (watch-channels create-event app-with-event)]
+                    (and
+                     (set? channel-resp)
+                     (= (:event create-event) (first channel-resp)))))))

@@ -42,15 +42,6 @@
         (is (= (assoc-in app [:event :description] nil)
                (assoc-in new-app [:event :description] nil)))))))
 
-(deftest test-process-message-create-event
-  (testing "Check process-message for CreateEvent just returns app unchanged"
-    (let [event {:speaker "Me" :name "event" :description "Some description"}
-          app   {:event event}
-          new-event {:speaker "You" :name "New event" :description "new"}]
-      (let [event-msg (m/map->CreateEvent new-event)
-            new-app (process-message event-msg app)]
-        (is (= (:event new-app) event))))))
-
 (deftest test-watch-channels-create-event
   (testing "Check that watch-channel for CreateEvent returns a set that includes a map in which
  the event sent is a subset"

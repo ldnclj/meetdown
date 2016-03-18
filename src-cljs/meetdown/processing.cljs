@@ -10,11 +10,6 @@
     (let [event-minus-nils (into {} (remove (comp nil? second) event))]
       (assoc app :event (merge (:event app) event-minus-nils)))))
 
-(extend-protocol Message
-  m/CreateEvent
-  (process-message [_ app]
-    app))
-
 (extend-protocol EventSource
   m/CreateEvent
   (watch-channels [_ {:keys [event] :as app}]

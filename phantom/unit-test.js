@@ -22,7 +22,7 @@ page.open(url, function (status) {
     console.log("Running test.");
 
     var failures = page.evaluate(function() {
-        test_runner.runner();
+        meetdown.test_runner.runner();
         return window["test-failures"];
     });
 

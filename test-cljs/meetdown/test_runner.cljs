@@ -1,4 +1,4 @@
-(ns test-runner
+(ns meetdown.test-runner
   (:require
    [doo.runner :refer-macros [doo-tests]]
    [meetdown.view-test]

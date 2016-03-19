@@ -199,6 +199,44 @@ $ curl -X POST -d "{:type :get-events}" http://localhost:3000/q --header "Conten
 $
 ```
 
+## Testing
+
+### Testing Clojure code
+
+To test the Clojure code run:
+
+```
+$ lein test
+```
+
+### Testing Clojurescript code
+
+Before running these tests you will need to install phantomjs version
+2+ on your path.
+
+To put cljs tests into auto test so they automatically reload and
+retest on save.
+
+```
+$ lein doo phantom test
+```
+
+To test cljs tests once only.
+
+```
+$ lein doo phantom test once
+```
+### To test everything
+
+There is an alias `test-all` set up to run both Clojure and
+Clojurescript tests. As the cljs tests rely on phantomjs you will need
+to install this first.
+
+```
+$ lein test-all
+```
+
+
 ## License
 
 Copyright © 2015 London Clojurians

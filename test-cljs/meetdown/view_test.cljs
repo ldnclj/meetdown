@@ -2,7 +2,8 @@
   (:require [cljs.core.async :refer [<! chan]]
             [cljs.test :as t :refer-macros [async deftest is run-tests]]
             [meetdown.view :as v]
-            [meetdown.messages :refer [FindEvent]])
+            [meetdown.messages :refer [FindEvent]]
+            [cljs-http.client :as http])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (deftest test-event-lookup

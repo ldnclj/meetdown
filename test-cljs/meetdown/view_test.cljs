@@ -15,3 +15,6 @@
                (is (= (:id msg) 1234))
                (is (= FindEvent (type msg)))
                (done))))))
+
+;; TODO I have no idea why but this works when run via doo but it doesn't when I run run-tests through
+;; the repl in CIDER using (cljs.test/run-tests 'meetdown.view-test)

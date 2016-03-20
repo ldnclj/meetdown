@@ -38,8 +38,7 @@
                        {:id "test"
                         :source-paths ["src-cljs" "test-cljs"]
                         :figwheel true
-                        :compiler {:main      "meetdown.test-runner"
-                                   :output-to "resources/private/js/unit-test.js"
+                        :compiler {:output-to "resources/private/js/unit-test.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}]
 

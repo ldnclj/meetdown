@@ -18,7 +18,7 @@
 
 (defn close-db []
   (do (d/shutdown false)
-      (println "DB shut down")))
+      (timbre/info "DB shut down")))
 
 (defn- store-entity
   [conn data-with-id]

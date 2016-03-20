@@ -2,7 +2,16 @@
   (:require [com.stuartsierra.component :as component]
             [meetdown
              [data :as d]
-             [http :as h]]))
+             [http :as h]]
+            [taoensso.timbre :as timbre]
+            [taoensso.timbre.appenders.core :as core-appenders]))
+
+(def timbre-config
+  {:level     :info
+   :appenders
+   {:println (core-appenders/println-appender {:stream :auto})}})
+
+(timbre/set-config! timbre-config)
 
 (def config {:dburi "datomic:mem://meetdown"
              :server {:port 3000}})
@@ -10,11 +19,11 @@
 (defrecord Datomic-connection-component [dburi connection]
   component/Lifecycle
   (start [component]
-    (println "Starting Datomic connection for " dburi)
+    (timbre/info "Starting Datomic connection for" dburi)
     (let [conn (d/setup-and-connect-to-db dburi)]
       (assoc component :connection conn)))
   (stop [component]
-    (println "Stopping Datomic connection")
+    (timbre/info "Stopping Datomic connection")
     (d/close-db)
     nil))
 
@@ -23,7 +32,6 @@
 
 (defn meetdown-system [config]
   (let [{:keys [dburi server]} config]
-    (println dburi)
     (component/system-map
      :db-component  (new-database dburi)
      :app           (component/using

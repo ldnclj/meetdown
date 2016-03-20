@@ -72,11 +72,11 @@
 (defrecord Server-component [server-options db-component]
   component/Lifecycle
   (start [component]
-    (println "Starting http-kit")
+    (timbre/info "Starting http-kit for" server-options)
     (let [server (http/run-server (make-handler (:connection db-component)) server-options)]
       (assoc component :web-server server)))
   (stop [component]
-    (println "Shutting down http-kit")
+    (timbre/info "Shutting down http-kit")
     (let [server (:web-server component)]
       (server :timeout 100))
     nil))

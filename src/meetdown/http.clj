@@ -8,7 +8,6 @@
             [ring.middleware.format :refer [wrap-restful-format]]
             [ring.middleware.defaults :as rmd]
             [meetdown.data :as data]
-            [ring.middleware.cors :refer [wrap-cors]]
             [org.httpkit.server :refer [run-server]]
             [taoensso.timbre :as timbre]))
 

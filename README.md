@@ -104,9 +104,23 @@ Questions I've got
 
 ### Run full application
 
-To run the entire application:
+To compile the cljs client for the application:
+
+```
+$ lein cljsbuild once
+```
+
+To run the server for the application:
+
 ```
 $ lein run
+```
+
+If you want to compile and run the client and server in one command
+use:
+
+```
+$ lein run-all
 ```
 
 Then open a browser and follow `http://localhost:3000`.
@@ -142,21 +156,23 @@ Shutting down http-kit
 user=>
 ```
 
+Note as this runs the server from the user ns it's now using port 8000
+not 3000 (this is so you can use `lein run` and `lein repl` together.
+
 ### Run client
 
 To run the client in figwheel:
 
 ```
 lein repl
-user=> (use 'figwheel-sidecar.repl-api)
+user=> (start-figwheel!) ;; See user/start-figwheel! - loads custom figwheel config
 nil
-user=> (do (start-figwheel!) nil)
 Figwheel: Starting server at http://localhost:3449
 Figwheel: Watching build - dev
-Compiling "resources/public/js/compiled/meetdown.js" from ["src-cljs"]...
+Compiling "resources/public/js/compiled/meetdown.js" from ["src-cljs" "test-cljs"]...
 Successfully compiled "resources/public/js/compiled/meetdown.js" in 5.575 seconds.
 nil
-user=> (cljs-repl)
+user=> (cljs-repl) ;; again see user/cljs-repl
 Launching ClojureScript REPL for build: dev
 Figwheel Controls:
           (stop-autobuild)                ;; stops Figwheel autobuilder

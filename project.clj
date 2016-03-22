@@ -27,14 +27,11 @@
             [lein-kibit "0.1.2"]]
   ;;  :hooks [leiningen.cljsbuild]
   :cljsbuild {:builds {:app
-                       {;:source-paths ["src-cljs" "test-cljs"]
-                        :figwheel {:on-jsload    "meetdown.cljscore/reload-hook"}
+                       {:source-paths ["src-cljs"]
                         :compiler {:main         "meetdown.cljscore"
                                    :output-to    "resources/public/js/compiled/meetdown.js"
                                    :output-dir   "resources/public/js/compiled/out"
-                                   :asset-path   "js/compiled/out"
-                                   :source-map-timestamp true
-                                   :closure-defines {meetdown.rest/url-port 8000}}}
+                                   :asset-path   "js/compiled/out"}}
 
                        :test
                        {:source-paths ["src-cljs" "test-cljs"]
@@ -48,10 +45,7 @@
               ;;              {"unit" ["phantomjs" "phantom/unit-test.js" "phantom/unit-test.html"]}
               }
   :profiles {:uberjar {:aot :all}
-             :dev {:cljsbuild {:builds
-                               {:app
-                                {:source-paths ["src-cljs" "test-cljs"]}}}
-                   :source-paths ["dev" "src-cljs" "test" "test-cljs"]
+             :dev {:source-paths ["dev" "src-cljs" "test" "test-cljs"]
                    :dependencies [[ring/ring-mock "0.3.0"]
                                   [lein-doo "0.1.6"]
                                   [org.clojure/tools.namespace "0.2.3"]
@@ -61,6 +55,7 @@
                                   [org.clojure/test.check "0.9.0"]]
                    :plugins [[lein-doo "0.1.6"]]}
              :repl {:plugins [[cider/cider-nrepl "0.10.0"]]}}
-  :aliases {"test-all" ["do" "test" ["doo" "phantom" "test" "once"]]}
+  :aliases {"test-all" ["do" "test" ["doo" "phantom" "test" "once"]]
+            "run-all"  ["do" "clean" ["cljsbuild" "once"] "run"]}
   :repl-options {:init-ns user
                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]})

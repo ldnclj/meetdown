@@ -25,9 +25,9 @@
             [lein-figwheel "0.5.0-1"]
             [lein-cloverage "1.0.6"]
             [lein-kibit "0.1.2"]]
-;;  :hooks [leiningen.cljsbuild]
-  :cljsbuild {:builds [{:id "dev"
-                        :source-paths ["src-cljs" "test-cljs"]
+  ;;  :hooks [leiningen.cljsbuild]
+  :cljsbuild {:builds {:app
+                       {;:source-paths ["src-cljs" "test-cljs"]
                         :figwheel {:on-jsload    "meetdown.cljscore/reload-hook"}
                         :compiler {:main         "meetdown.cljscore"
                                    :output-to    "resources/public/js/compiled/meetdown.js"
@@ -36,19 +36,22 @@
                                    :source-map-timestamp true
                                    :closure-defines {meetdown.rest/url-port 8000}}}
 
-                       {:id "test"
-                        :source-paths ["src-cljs" "test-cljs"]
+                       :test
+                       {:source-paths ["src-cljs" "test-cljs"]
                         :figwheel true
                         :compiler {:output-to "resources/private/js/unit-test.js"
                                    :optimizations :whitespace
-                                   :pretty-print true}}]
+                                   :pretty-print true}}}
 
-;; CHJ- had real trouble using cljsbuild with cljs.test/async tests so gave up and used 'doo' which just worked out of the box.
-;;              :test-commands
-;;              {"unit" ["phantomjs" "phantom/unit-test.js" "phantom/unit-test.html"]}
+              ;; CHJ- had real trouble using cljsbuild with cljs.test/async tests so gave up and used 'doo' which just worked out of the box.
+              ;;              :test-commands
+              ;;              {"unit" ["phantomjs" "phantom/unit-test.js" "phantom/unit-test.html"]}
               }
   :profiles {:uberjar {:aot :all}
-             :dev {:source-paths ["dev" "src-cljs" "test" "test-cljs"]
+             :dev {:cljsbuild {:builds
+                               {:app
+                                {:source-paths ["src-cljs" "test-cljs"]}}}
+                   :source-paths ["dev" "src-cljs" "test" "test-cljs"]
                    :dependencies [[ring/ring-mock "0.3.0"]
                                   [lein-doo "0.1.6"]
                                   [org.clojure/tools.namespace "0.2.3"]

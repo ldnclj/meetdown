@@ -4,7 +4,8 @@
              [data :as d]
              [http :as h]]
             [taoensso.timbre :as timbre]
-            [taoensso.timbre.appenders.core :as core-appenders]))
+            [taoensso.timbre.appenders.core :as core-appenders])
+  (:gen-class))
 
 (def timbre-config
   {:level     :info

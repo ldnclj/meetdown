@@ -44,7 +44,8 @@
               ;;              :test-commands
               ;;              {"unit" ["phantomjs" "phantom/unit-test.js" "phantom/unit-test.html"]}
               }
-  :profiles {:uberjar {:aot :all}
+  :profiles {:uberjar {:aot :all
+                       :prep-tasks ["compile" ["cljsbuild" "once" "app"]]}
              :dev {:source-paths ["dev" "src-cljs" "test" "test-cljs"]
                    :dependencies [[ring/ring-mock "0.3.0"]
                                   [lein-doo "0.1.6"]

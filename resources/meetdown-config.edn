@@ -1,0 +1,3 @@
+{:nomad/includes [#nomad/resource "secret-keys.edn"]
+
+ :jwt-secret #nomad/secret [:general "0a5771ccb4048e169fb7190c44b03611beaf180408698a3a6891041dfeb9f3c1658846d77fdb92a434d3a7abeda6f282f3db492b96e1a95bc10d8661e1c163ab999b4986f835dc056e1c0cf090bd002a16fe0efd6d8c50efdc01635a56fff010"]}

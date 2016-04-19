@@ -25,6 +25,30 @@ TODO
    * Add validation - e.g. schema
    * Add security - TBD
 
+## Secrets
+
+Add the following to resources/secret-keys.edn:
+
+```clojure
+{:nomad/secrets {:general "dd26c108d67b2e4d26fa9545131d95be5a4f275d3cef39769f173f26db5fb7a7"}}
+```
+
+(normally we wouldn't put this in the README!)
+
+Generating a new encrypted value:
+
+```clojure
+(nomad.secret/encrypt {:obj :to-encrypt} (get-in (meetdown.config/config) [:nomad/secret-keys :general]))
+```
+
+Include this in config as:
+
+```clojure
+{:my-secret-value #nomad/secret [:general "<output of ^^>"]}
+```
+
+I hereby promise I'll update the Nomad docs with this - JH.
+
 ### CHJ's thoughts - YMMV
 
 I like the idea of having the only changes to support changes in the

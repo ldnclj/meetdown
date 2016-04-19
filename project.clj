@@ -20,25 +20,43 @@
                  [org.clojure/core.match "0.3.0-alpha4"]]
   :main meetdown.core
   :source-paths ["src"]
+  :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private/js"]
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0-1"]
             [lein-cloverage "1.0.6"]
             [lein-kibit "0.1.2"]]
-  :cljsbuild {:builds [{:id "dev"
-                        :source-paths ["src-cljs"]
-                        :figwheel {:on-jsload    "meetdown.cljscore/reload-hook"}
-                        :compiler {:main         meetdown.cljscore
+  ;;  :hooks [leiningen.cljsbuild]
+  :cljsbuild {:builds {:app
+                       {:source-paths ["src-cljs"]
+                        :compiler {:main         "meetdown.cljscore"
                                    :output-to    "resources/public/js/compiled/meetdown.js"
                                    :output-dir   "resources/public/js/compiled/out"
-                                   :asset-path   "js/compiled/out"
-                                   :source-map-timestamp true}}]}
-  :profiles {:uberjar {:aot :all}
-             :dev {:source-paths ["dev" "src-cljs"]
+                                   :asset-path   "js/compiled/out"}}
+
+                       :test
+                       {:source-paths ["src-cljs" "test-cljs"]
+                        :figwheel true
+                        :compiler {:output-to "resources/private/js/unit-test.js"
+                                   :optimizations :whitespace
+                                   :pretty-print true}}}
+
+              ;; CHJ- had real trouble using cljsbuild with cljs.test/async tests so gave up and used 'doo' which just worked out of the box.
+              ;;              :test-commands
+              ;;              {"unit" ["phantomjs" "phantom/unit-test.js" "phantom/unit-test.html"]}
+              }
+  :profiles {:uberjar {:aot :all
+                       :prep-tasks ["compile" ["cljsbuild" "once" "app"]]}
+             :dev {:source-paths ["dev" "src-cljs" "test" "test-cljs"]
                    :dependencies [[ring/ring-mock "0.3.0"]
+                                  [lein-doo "0.1.6"]
                                   [org.clojure/tools.namespace "0.2.3"]
                                   [org.clojure/java.classpath "0.2.0"]
                                   [figwheel-sidecar "0.5.0-1"]
-                                  [com.cemerick/piggieback "0.2.1"]]}
+                                  [com.cemerick/piggieback "0.2.1"]
+                                  [org.clojure/test.check "0.9.0"]]
+                   :plugins [[lein-doo "0.1.6"]]}
              :repl {:plugins [[cider/cider-nrepl "0.10.0"]]}}
+  :aliases {"test-all" ["do" "test" ["doo" "phantom" "test" "once"]]
+            "run-all"  ["do" "clean" ["cljsbuild" "once"] "run"]}
   :repl-options {:init-ns user
                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]})

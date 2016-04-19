@@ -102,12 +102,30 @@ Questions I've got
 
 ## Usage
 
-To run the entire application:
+### Run full application
+
+To compile the cljs client for the application:
+
+```
+$ lein cljsbuild once
+```
+
+To run the server for the application:
+
 ```
 $ lein run
 ```
 
+If you want to compile and run the client and server in one command
+use:
+
+```
+$ lein run-all
+```
+
 Then open a browser and follow `http://localhost:3000`.
+
+### Run server
 
 To run the server in a REPL:
 
@@ -138,7 +156,48 @@ Shutting down http-kit
 user=>
 ```
 
-You can use the following curl commands from a terminal session to
+Note as this runs the server from the user ns it's now using port 8000
+not 3000 (this is so you can use `lein run` and `lein repl` together.
+
+### Run client
+
+To run the client in figwheel:
+
+```
+lein repl
+user=> (start-figwheel!) ;; See user/start-figwheel! - loads custom figwheel config
+nil
+Figwheel: Starting server at http://localhost:3449
+Figwheel: Watching build - dev
+Compiling "resources/public/js/compiled/meetdown.js" from ["src-cljs" "test-cljs"]...
+Successfully compiled "resources/public/js/compiled/meetdown.js" in 5.575 seconds.
+nil
+user=> (cljs-repl) ;; again see user/cljs-repl
+Launching ClojureScript REPL for build: dev
+Figwheel Controls:
+          (stop-autobuild)                ;; stops Figwheel autobuilder
+          (start-autobuild [id ...])      ;; starts autobuilder focused on optional ids
+          (switch-to-build id ...)        ;; switches autobuilder to different build
+          (reset-autobuild)               ;; stops, cleans, and starts autobuilder
+          (reload-config)                 ;; reloads build config and resets autobuild
+          (build-once [id ...])           ;; builds source one time
+          (clean-builds [id ..])          ;; deletes compiled cljs target files
+          (print-config [id ...])         ;; prints out build configurations
+          (fig-status)                    ;; displays current state of system
+  Switch REPL build focus:
+          :cljs/quit                      ;; allows you to switch REPL to another build
+    Docs: (doc function-name-here)
+    Exit: Control+C or :cljs/quit
+ Results: Stored in vars *1, *2, *3, *e holds last exception object
+Prompt will show when Figwheel connects to your application
+To quit, type: :cljs/quit
+nil
+cljs.user=>
+```
+
+### Send requests using cURL
+
+You can use the following cURL commands from a terminal session to
 send requests to the server.
 
 To create a new event:
@@ -155,6 +214,44 @@ $ curl -X POST -d "{:type :get-events}" http://localhost:3000/q --header "Conten
 [{:db/id 17592186045420, :event/name "New event"}]
 $
 ```
+
+## Testing
+
+### Testing Clojure code
+
+To test the Clojure code run:
+
+```
+$ lein test
+```
+
+### Testing Clojurescript code
+
+Before running these tests you will need to install phantomjs version
+2+ on your path.
+
+To put cljs tests into auto test so they automatically reload and
+retest on save.
+
+```
+$ lein doo phantom test
+```
+
+To test cljs tests once only.
+
+```
+$ lein doo phantom test once
+```
+### To test everything
+
+There is an alias `test-all` set up to run both Clojure and
+Clojurescript tests. As the cljs tests rely on phantomjs you will need
+to install this first.
+
+```
+$ lein test-all
+```
+
 
 ## License
 

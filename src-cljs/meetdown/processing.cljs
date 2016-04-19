@@ -5,24 +5,10 @@
             [petrol.core :refer [EventSource Message]]))
 
 (extend-protocol Message
-  m/ChangeEventName
-  (process-message [{:keys [name]} app]
-    (assoc-in app [:event :name] name)))
-
-(extend-protocol Message
-  m/ChangeEventSpeaker
-  (process-message [{:keys [speaker]} app]
-    (assoc-in app [:event :speaker] speaker)))
-
-(extend-protocol Message
-  m/ChangeEventDescription
-  (process-message [{:keys [description]} app]
-    (assoc-in app [:event :description] description)))
-
-(extend-protocol Message
-  m/CreateEvent
-  (process-message [_ {:keys [event server-state] :as app}]
-    app))
+  m/ChangeEvent
+  (process-message [event app]
+    (let [event-minus-nils (into {} (remove (comp nil? second) event))]
+      (assoc app :event (merge (:event app) event-minus-nils)))))
 
 (extend-protocol EventSource
   m/CreateEvent
@@ -42,7 +28,7 @@
                        (assoc-in [:view :handler] :event)
                        (assoc-in [:view :route-params :id] event-id)
                        (assoc :event nil))]
-      (.pushState (.-history js/window) "" "event" (str "#" event-id "-event"))
+      (.pushState (.-history js/window) "" "event" (str "#" event-id "-event")) ; TODO Need to remove this side effect from here to view where it belongs.
       new-app)))
 
 (extend-protocol Message

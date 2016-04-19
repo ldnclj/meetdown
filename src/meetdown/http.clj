@@ -9,18 +9,41 @@
             [ring.middleware.defaults :as rmd]
             [meetdown.data :as data]
             [org.httpkit.server :refer [run-server]]
-            [taoensso.timbre :as timbre]))
+            [taoensso.timbre :as timbre]
+            [meetdown.auth :as auth]))
 
 (defn- handle-query
   [db-conn]
-  (fn [{req-body :body-params}]
+  (fn [{req-body :body-params, :keys [user-roles user-id]}]
     (let [db (data/database db-conn)]
       (case (:type req-body)
         :get-events   {:body (data/get-events db)}
+
         :create-event {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data req-body)))}}
+
         :get-event    {:body (->> (get-in req-body [:txn-data :db/id])
                                   (data/to-ent db))}
+
         :create-user  {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data req-body)))}}
+
+
+        ;; Auth: test with:
+        ;; curl -iXPOST http://localhost:3000/q -d "{:type :login, :user-id "james"}" -H "Content-Type: application/edn"
+
+        ;; curl -iXPOST http://localhost:3000/q -d "{:type :get-current-user}" -H "Content-Type: application/edn" -H "Authorization: <token>"
+
+        :get-current-user (if user-id
+                            {:body {:user-id user-id
+                                    :user-roles user-roles}}
+                            {:body :no-current-user
+                             :status 401})
+
+        ;; yes, we log *anyone* in...
+        :login {:body :logged-in
+                :headers {"Authorization" (auth/generate-token {:user-id (:user-id req-body)
+                                                                :user-roles #{:admin}})}}
+
+
         {:status 415 :body (str "Unsupported type - " (:type req-body))}))))
 
 (def home-page
@@ -41,10 +64,10 @@
 
 (defn make-router [db-conn]
   (routes
-   (resources "/")
-   (GET "/" [] home-page)
-   (POST "/q" []
-         (handle-query db-conn))))
+    (resources "/")
+    (GET "/" [] home-page)
+    (POST "/q" []
+      (handle-query db-conn))))
 
 (def default-config
   {:params {:urlencoded true
@@ -62,10 +85,18 @@
       (timbre/debug "Handling request:" req)
       (handler req))))
 
+(defn wrap-authenticate-user
+  [handler]
+
+  (fn [req]
+    (handler (merge req
+                    (auth/authenticate-user (get-in req [:headers "authorization"]))))))
+
 (defn make-handler [db-conn]
   (-> (make-router db-conn)
-      (wrap-log-request)
+      wrap-log-request
       (wrap-restful-format :formats [:edn :transit-json])
+      wrap-authenticate-user
       (rmd/wrap-defaults rmd/api-defaults)))
 
 

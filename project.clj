@@ -18,7 +18,8 @@
                  [hiccup "1.0.5"]
                  [jarohen/nomad "0.8.0-beta3"]
                  [com.taoensso/timbre "4.2.0"]
-                 [org.clojure/core.match "0.3.0-alpha4"]]
+                 [org.clojure/core.match "0.3.0-alpha4"]
+                 [clj-jwt "0.1.1"]]
   :main meetdown.core
   :source-paths ["src"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "resources/private/js"]

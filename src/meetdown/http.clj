@@ -12,39 +12,48 @@
             [taoensso.timbre :as timbre]
             [meetdown.auth :as auth]))
 
-(defn- handle-query
-  [db-conn]
-  (fn [{req-body :body-params, :keys [user-roles user-id]}]
-    (let [db (data/database db-conn)]
-      (case (:type req-body)
-        :get-events   {:body (data/get-events db)}
+(def auth-handlers
+  ;; Auth: test with:
+  ;; curl -iXPOST http://localhost:3000/q -d "{:type :login, :user-id "james"}" -H "Content-Type: application/edn"
 
-        :create-event {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data req-body)))}}
+  ;; curl -iXPOST http://localhost:3000/q -d "{:type :get-current-user}" -H "Content-Type: application/edn" -H "Authorization: <token>"
 
-        :get-event    {:body (->> (get-in req-body [:txn-data :db/id])
-                                  (data/to-ent db))}
+  {:get-current-user (fn [{:keys [db body-params user-id user-roles]}]
+                       (if user-id
+                         {:body {:user-id user-id
+                                 :user-roles user-roles}}
+                         {:body :no-current-user
+                          :status 401}))
 
-        :create-user  {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data req-body)))}}
+   ;; yes, we log *anyone* in...
+   :login (fn [{:keys [db body-params]}]
+            {:body :logged-in
+             :headers {"Authorization" (auth/generate-token {:user-id (:user-id body-params)
+                                                             :user-roles #{:admin}})}})})
 
+(def event-handlers
+  {:get-events (fn [{:keys [db body-params]}]
+                 {:body (data/get-events db)})
 
-        ;; Auth: test with:
-        ;; curl -iXPOST http://localhost:3000/q -d "{:type :login, :user-id "james"}" -H "Content-Type: application/edn"
+   :create-event (fn [{:keys [db db-conn body-params]}]
+                   {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data body-params)))}})
 
-        ;; curl -iXPOST http://localhost:3000/q -d "{:type :get-current-user}" -H "Content-Type: application/edn" -H "Authorization: <token>"
+   :get-event (fn [{:keys [db body-params]}]
+                {:body (->> (get-in body-params [:txn-data :db/id])
+                            (data/to-ent db))})})
 
-        :get-current-user (if user-id
-                            {:body {:user-id user-id
-                                    :user-roles user-roles}}
-                            {:body :no-current-user
-                             :status 401})
+(def user-handlers
+  {:create-user (fn [{:keys [db db-conn body-params]}]
+                  {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data body-params)))}})})
 
-        ;; yes, we log *anyone* in...
-        :login {:body :logged-in
-                :headers {"Authorization" (auth/generate-token {:user-id (:user-id req-body)
-                                                                :user-roles #{:admin}})}}
-
-
-        {:status 415 :body (str "Unsupported type - " (:type req-body))}))))
+(defn- handle-query [req]
+  (let [req-type (get-in req [:body-params :type])]
+    (if-let [handler (get (merge auth-handlers
+                                 event-handlers
+                                 user-handlers)
+                          req-type)]
+      (handler req)
+      {:status 415 :body (str "Unsupported type - " req-type)})))
 
 (def home-page
   (html
@@ -59,15 +68,15 @@
       [:h3 "Loading...."]
       [:p "Loading application. Please wait.... "]]
      (include-js "js/compiled/meetdown.js")
-     [:script {:type "text/javascript"} "addEventListener(\"load\", meetdown.cljscore.main, false);"]
-     ]]))
+     [:script {:type "text/javascript"} "addEventListener(\"load\", meetdown.cljscore.main, false);"]]]))
 
-(defn make-router [db-conn]
+(defn make-router []
   (routes
     (resources "/")
     (GET "/" [] home-page)
     (POST "/q" []
-      (handle-query db-conn))))
+      (fn [req]
+        (handle-query req)))))
 
 (def default-config
   {:params {:urlencoded true
@@ -85,18 +94,23 @@
       (timbre/debug "Handling request:" req)
       (handler req))))
 
-(defn wrap-authenticate-user
-  [handler]
-
+(defn wrap-authenticate-user [handler]
   (fn [req]
     (handler (merge req
                     (auth/authenticate-user (get-in req [:headers "authorization"]))))))
 
+(defn wrap-db [handler db-conn]
+  (fn [req]
+    (handler (assoc req
+               :db-conn db-conn
+               :db (data/database db-conn)))))
+
 (defn make-handler [db-conn]
-  (-> (make-router db-conn)
+  (-> (make-router)
       wrap-log-request
       (wrap-restful-format :formats [:edn :transit-json])
       wrap-authenticate-user
+      (wrap-db db-conn)
       (rmd/wrap-defaults rmd/api-defaults)))
 
 

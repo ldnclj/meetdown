@@ -26,7 +26,9 @@
   (stop [component]
     (timbre/info "Stopping Datomic connection")
     (d/close-db)
-    nil))
+    (-> component
+        (assoc :connection nil)
+        (assoc :dburi nil))))
 
 (defn new-database [dburi]
   (map->Datomic-connection-component {:dburi dburi}))

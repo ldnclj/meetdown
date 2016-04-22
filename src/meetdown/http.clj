@@ -79,7 +79,10 @@
     (timbre/info "Shutting down http-kit")
     (let [server (:web-server component)]
       (server :timeout 100))
-    nil))
+    (-> component
+        (assoc :web-server nil)
+        (assoc :db-component nil)
+        (assoc :server-options nil))))
 
 (defn new-server [server-options]
   (map->Server-component {:server-options server-options}))

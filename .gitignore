@@ -13,4 +13,4 @@ pom.xml.asc
 /resources/private/js
 /out
 .*
-figwheel.log
+figwheel_server.log

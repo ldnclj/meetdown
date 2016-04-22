@@ -8,8 +8,7 @@
 (defn- home-view
   [ui-channel]
   [:div.col-xs-12
-   (for [[link title] [[(href-for :new-event) "Create new meetdown"]
-                       [(href-for :test)      "Test"]]]
+   (for [[link title] [[(href-for :new-event) "Create new meetdown"]]]
      [:div.row.col-xs-12 {:key title}
       [:a {:href link} title]])])
 
@@ -66,7 +65,6 @@
     [:div.row.col-xs-12 [:br]]
     (match [(:handler view)]
            [:new-event]   [event-form ui-channel event]
-           [:test]        [:p.col-xs-12 "test render"]
            [:event]       (event-lookup ui-channel view)
            [:event-found] [server-view ui-channel server-state view]
            :else          [home-view ui-channel])]])

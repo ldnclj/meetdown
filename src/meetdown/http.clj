@@ -18,40 +18,40 @@
 
   ;; curl -iXPOST http://localhost:3000/q -d "{:type :get-current-user}" -H "Content-Type: application/edn" -H "Authorization: <token>"
 
-  {:get-current-user (fn [{:keys [db body-params user-id user-roles]}]
-                       (if user-id
-                         {:body {:user-id user-id
-                                 :user-roles user-roles}}
-                         {:body :no-current-user
-                          :status 401}))
+  {:get-current-user {:handler (fn [{:keys [db body-params user-id user-roles]}]
+                                 (when user-id
+                                   {:body {:user-id user-id
+                                           :user-roles user-roles}}))
+                      :user-roles #{:admin}}
 
    ;; yes, we log *anyone* in...
-   :login (fn [{:keys [db body-params]}]
-            {:body :logged-in
-             :headers {"Authorization" (auth/generate-token {:user-id (:user-id body-params)
-                                                             :user-roles #{:admin}})}})})
+   :login {:handler (fn [{:keys [db body-params]}]
+                       {:body :logged-in
+                        :headers {"Authorization" (auth/generate-token {:user-id (:user-id body-params)
+                                                                        :user-roles #{:admin}})}})}})
 
 (def event-handlers
-  {:get-events (fn [{:keys [db body-params]}]
-                 {:body (data/get-events db)})
+  {:get-events {:handler (fn [{:keys [db body-params]}]
+                           {:body (data/get-events db)})}
 
-   :create-event (fn [{:keys [db db-conn body-params]}]
-                   {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data body-params)))}})
+   :create-event {:handler (fn [{:keys [db db-conn body-params]}]
+                             {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data body-params)))}})}
 
-   :get-event (fn [{:keys [db body-params]}]
-                {:body (->> (get-in body-params [:txn-data :db/id])
-                            (data/to-ent db))})})
+   :get-event {:handler (fn [{:keys [db body-params]}]
+                          {:body (->> (get-in body-params [:txn-data :db/id])
+                                      (data/to-ent db))})}})
 
 (def user-handlers
-  {:create-user (fn [{:keys [db db-conn body-params]}]
-                  {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data body-params)))}})})
+  {:create-user {:handler (fn [{:keys [db db-conn body-params]}]
+                            {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data body-params)))}})}})
+
+(def all-handlers
+  (merge auth-handlers event-handlers user-handlers))
 
 (defn- handle-query [req]
   (let [req-type (get-in req [:body-params :type])]
-    (if-let [handler (get (merge auth-handlers
-                                 event-handlers
-                                 user-handlers)
-                          req-type)]
+    (if-let [handler (get-in all-handlers
+                             [req-type :handler])]
       (handler req)
       {:status 415 :body (str "Unsupported type - " req-type)})))
 
@@ -105,8 +105,21 @@
                :db-conn db-conn
                :db (data/database db-conn)))))
 
+(defn user-authorised? [user-roles type]
+  (let [roles-authorised (get-in all-handlers [type :user-roles])]
+      (or (not roles-authorised)
+          (some roles-authorised user-roles))))
+
+(defn wrap-handle-authorisation [handler]
+  (fn [{:keys [user-roles] :as req}]
+    (if (user-authorised? user-roles (get-in req [:body-params :type]))
+      (handler req)
+      {:body :not-authorised
+       :status 401})))
+
 (defn make-handler [db-conn]
   (-> (make-router)
+      wrap-handle-authorisation
       wrap-log-request
       (wrap-restful-format :formats [:edn :transit-json])
       wrap-authenticate-user

@@ -30,7 +30,7 @@ TODO
 Add the following to resources/secret-keys.edn:
 
 ```clojure
-{:nomad/secrets {:general "dd26c108d67b2e4d26fa9545131d95be5a4f275d3cef39769f173f26db5fb7a7"}}
+{:nomad/secret-keys {:general "dd26c108d67b2e4d26fa9545131d95be5a4f275d3cef39769f173f26db5fb7a7"}}
 ```
 
 (normally we wouldn't put this in the README!)

@@ -44,7 +44,6 @@
                 :output-dir   "resources/public/js/compiled/out"
                 :asset-path   "js/compiled/out"
                 :source-map-timestamp true
-                :closure-defines {'meetdown.rest/url-port server-port-num} ;; <-- define port for client to match server above
                 }}]})
 
 

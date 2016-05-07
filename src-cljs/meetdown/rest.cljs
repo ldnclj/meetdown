@@ -6,13 +6,11 @@
             [cljs.core.async :refer [>! <! chan]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
-(goog-define url-port 3000)
-
 (defn create-event
   [event]
   (let [rest-event (reduce (add-ns "event") {} event)
         event-channel (petrol/wrap m/map->CreateEventResults
-                                   (http/post (str "http://localhost:" url-port "/q")
+                                   (http/post "/q"
                                               {:with-credentials? false
                                                :edn-params {:type :create-event
                                                             :txn-data rest-event}}))]
@@ -21,7 +19,7 @@
 (defn find-event
   [id]
   (let [post-channel (petrol/wrap m/map->FindEventResults
-                                  (http/post (str "http://localhost:" url-port "/q")
+                                  (http/post "/q"
                                              {:with-credentials? false
                                               :edn-params {:type :get-event
                                                            :txn-data {:db/id id}}}))]

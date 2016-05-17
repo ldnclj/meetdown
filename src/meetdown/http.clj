@@ -32,9 +32,11 @@
 
 (def auth-handlers
   ;; Auth: test with:
-  ;; curl -iXPOST http://localhost:3000/q -d "{:type :login, :user-id "james"}" -H "Content-Type: application/edn"
+  ;; eval the 'add-user!' call in the bottom of auth.clj (well, it was when I wrote this)
 
-  ;; curl -iXPOST http://localhost:3000/q -d "{:type :get-current-user}" -H "Content-Type: application/edn" -H "Authorization: <token>"
+  ;; curl -iXPOST http://localhost:8000/q -d '{:type :login, :username "james", :password "password-123"}' -H "Content-Type: application/edn"
+
+  ;; curl -iXPOST http://localhost:8000/q -d '{:type :get-current-user}' -H "Content-Type: application/edn" -H "Authorization: <token>"
 
   {:get-current-user (-> (fn [{:keys [db body-params user-id user-roles]}]
                            (when user-id
@@ -43,11 +45,20 @@
 
                          wrap-assert-logged-in)
 
-   ;; yes, we log *anyone* in...
    :login (fn [{:keys [db body-params]}]
-            {:body :logged-in
-             :headers {"Authorization" (auth/generate-token {:user-id (:user-id body-params)
-                                                             :user-roles #{:admin}})}})})
+            (let [{:keys [username password]} body-params]
+              (if-let [{:keys [user-id username]} (auth/check-login {:username username
+                                                                     :password password}
+                                                                    {:db db})]
+                {:body {:user-id user-id
+                        :username username}
+
+                 :headers {"Authorization" (auth/generate-token {:user-id user-id
+                                                                 :user-roles #{:admin}})}}
+
+                (-> (response {:status :unauthenticated
+                               :body-params body-params})
+                    (status 401)))))})
 
 (def event-handlers
   {:get-events (fn [{:keys [db body-params]}]

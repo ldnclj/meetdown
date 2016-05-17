@@ -1,4 +1,11 @@
 #{{:db/id #db/id[:db.part/db]
+   :db/ident :user/id
+   :db/cardinality :db.cardinality/one
+   :db/valueType :db.type/uuid
+   :db/unique :db.unique/identity
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
    :db/ident :user/name
    :db/cardinality :db.cardinality/one
    :db/valueType :db.type/string
@@ -19,7 +26,7 @@
    :db.install/_attribute :db.part/db}
 
   {:db/id #db/id[:db.part/db]
-   :db/ident :user/password
+   :db/ident :user/password-hash
    :db/cardinality :db.cardinality/one
    :db/valueType :db.type/string
    :db.install/_attribute :db.part/db}}

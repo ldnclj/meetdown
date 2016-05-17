@@ -1,11 +1,14 @@
 (ns meetdown.http-test
-  (:require [clojure.test :refer :all]
-            [clojure.walk :refer [keywordize-keys]]
-            [meetdown.core :as app]
-            [meetdown.http :as http]
+  (:require [clojure
+             [test :refer :all]
+             [walk :refer [keywordize-keys]]]
             [com.stuartsierra.component :as component]
-            [ring.mock.request :refer [request body content-type header]])
-  (:import [javax.servlet.http HttpServletResponse]))
+            [meetdown
+             [auth :as auth]
+             [core :as app]
+             [http :as http]]
+            [ring.mock.request :refer [body content-type header request]])
+  (:import javax.servlet.http.HttpServletResponse))
 
 (def test-system-config
   {:dburi    "datomic:mem://meetdown"
@@ -26,13 +29,24 @@
 
 (def query-entity-url "http://localhost:4000/q")
 
-(defn http-post [url data]
-  (let [handler (http/make-handler (get-in @test-system [:app :db-component :connection]))]
-    (keywordize-keys
-     (handler (-> (request :post url)
+(defn- create-request
+  [url data]
+  (-> (request :post url)
                   (body (prn-str data))
                   (content-type "application/edn")
-                  (header "Accept" "application/edn"))))))
+                  (header "Accept" "application/edn")))
+
+(defn- create-post
+  [url data req]
+  (let [handler (http/make-handler (get-in @test-system [:app :db-component :connection]))]
+    (keywordize-keys
+     (handler req))))
+
+(defn http-auth-post [url data token]
+  (create-post url data (header (create-request url data) "Authorization" token)))
+
+(defn http-post [url data]
+  (create-post url data (create-request url data)))
 
 (defn- extract-body
   ([response]
@@ -102,3 +116,11 @@
                     (request :get "/"))]
       (is (re-find #"<div id=\"app\"" (:body response)))
       (is (re-find #"<script type=\"text/javascript\">addEventListener\(\"load\", meetdown.cljscore.main, false\);</script>" (:body response))))))
+
+;; had to comment out this test as circleci failing as we don't checkin the secret-keys.edn file.
+;; you can run this locally if you have set up secret-keys.edn
+#_(deftest test-authorised
+    (testing "Check that get-current-user needs admin authorisation"
+      (let [auth-token (auth/generate-token {:user-id "Chris" :user-roles #{:admin}})]
+        (is (= 200 (:status (http-auth-post "/q" {:type :get-current-user :txn-data {}} auth-token)))))
+      (is (= 401 (:status (http-auth-post "/q" {:type :get-current-user :txn-data {}} "rubbish token"))))))

@@ -39,7 +39,10 @@
 
    :get-event {:handler (fn [{:keys [db body-params]}]
                           {:body (->> (get-in body-params [:txn-data :db/id])
-                                      (data/to-ent db))})}})
+                                      (data/to-ent db))})}
+
+   :create-location {:handler (fn [{:keys [db db-conn body-params]}]
+                             {:body {:db/id (:db/id (java.util.UUID/randomUUID))}})}})
 
 (def user-handlers
   {:create-user {:handler (fn [{:keys [db db-conn body-params]}]

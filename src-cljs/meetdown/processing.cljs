@@ -15,6 +15,17 @@
   (watch-channels [_ {:keys [event] :as app}]
     #{(rest/create-event event)}))
 
+(extend-protocol EventSource
+  m/CreateLocation
+  (watch-channels [_ {:keys [location] :as app}]
+    #{(rest/create-location location)}))
+
+(extend-protocol Message
+  m/ChangeLocation
+  (process-message [location app]
+    (let [location-minus-nils (into {} (remove (comp nil? second) location))]
+      (assoc app :location (merge (:location app) location-minus-nils)))))
+
 (defn- extract-event
   "Extract the event from the http response"
   [response]
@@ -30,6 +41,23 @@
                        (assoc :event nil))]
       (.pushState (.-history js/window) "" "event" (str "#" event-id "-event")) ; TODO Need to remove this side effect from here to view where it belongs.
       new-app)))
+
+(defn- extract-location
+  "Extract the location from the http response"
+  [response]
+  (->> response :body (reduce (remove-ns "location") {})))
+
+(extend-protocol Message
+  m/CreateLocationResults
+  (process-message [response app]
+    (let [location-id (:id (extract-location response))
+          new-app  (-> app
+                       (assoc-in [:view :handler] :location)
+                       (assoc-in [:view :route-params :id] location-id)
+                       (assoc :location nil))]
+      (.pushState (.-history js/window) "" "location" (str "#" location-id "-location")) ; TODO Need to remove this side effect from here to view where it belongs.
+      new-app)))
+
 
 (extend-protocol Message
   m/FindEventResults

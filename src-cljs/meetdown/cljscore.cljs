@@ -9,7 +9,7 @@
 ;; define your app data so that it doesn't get over-written on reload
 
 (def initial-state
-  {:event {:name "" :speaker "" :description ""} :server-state nil :view {:handler :home}})
+  {:event {:name "" :speaker "" :description ""} :location {:postCode ""} :server-state nil :view {:handler :home}})
 
 (defonce !app
   (reagent/atom initial-state))

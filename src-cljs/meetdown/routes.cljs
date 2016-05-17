@@ -4,6 +4,7 @@
 
 (def frontend-routes
   ["" {"#" {""            :home
+            "login"       :login
             "newevent"    :new-event
             [:id "-event"] :event
             "test"        :test}}])

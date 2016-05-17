@@ -4,6 +4,7 @@
             [petrol.routing :as petrol-routing]
             [meetdown.routes :refer [frontend-routes]]
             [meetdown.processing]
+            [meetdown.login.processing]
             [meetdown.view :as view]))
 
 ;; define your app data so that it doesn't get over-written on reload

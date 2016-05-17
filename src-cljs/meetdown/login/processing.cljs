@@ -17,8 +17,7 @@
 (extend-protocol Message
   m/LoginResults
   (process-message [{:keys [success body headers]} app]
-    (prn success body headers)
-    app))
+    (assoc-in app [:authorization] (get headers "authorization"))))
 
 (extend-protocol EventSource
   m/Login

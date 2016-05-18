@@ -49,21 +49,17 @@
                          :on-change (send-value! ui-channel #(m/map->ChangeEvent {:name name :speaker speaker :description % :date date }))}]]
    [:div.row.col-xs-12
     [:label.col-xs-4 "Event Date:"]
-    [:textarea.col-xs-6 {:type :text
+    [:input.col-xs-6 {:type :text
                          :placeholder "Date of the event..."
                          :defaultValue date
                          :on-change (send-value! ui-channel #(m/map->ChangeEvent {:name name :speaker speaker :description  description :date % }))}]]
 
-
-
    [:div.row.col-xs-12
     [:label.col-xs-4 "PostCode:"]
-    [:textarea.col-xs-6 {:type :text
+    [:input.col-xs-6 {:type :text
                          :placeholder "Post Code"
                          :defaultValue postCode
                          :on-change (send-value! ui-channel #(m/map->ChangeLocation {:postCode %}))}]]
-
-
    [:div.row.col-xs-12
     [:div.col-xs-4
      [:button.btn.btn-success

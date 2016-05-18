@@ -7,3 +7,9 @@
 (defrecord Login [])
 
 (defrecord LoginResults [success body headers])
+
+(defrecord LoginSuccess [body headers])
+
+(defrecord LoginFailure [errors])
+
+(defrecord Logout [])

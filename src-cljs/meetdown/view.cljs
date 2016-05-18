@@ -1,10 +1,11 @@
 (ns meetdown.view
   (:require [petrol.core :refer [send! send-value!]]
             [meetdown.messages :as m]
-            [meetdown.login.messages :as ml]
+            [meetdown.login.view :as lv]
             [meetdown.routes :refer [href-for]]
             [cljs.core.match :refer-macros [match]]
-            [cljs.core.async :refer [put!]]))
+            [cljs.core.async :refer [put!]]
+            [meetdown.login.messages :as ml]))
 
 (defn- home-view
   [ui-channel]
@@ -12,25 +13,6 @@
    (for [[link title] [[(href-for :new-event) "Create new meetdown"]]]
      [:div.row.col-xs-12 {:key title}
       [:a {:href link} title]])])
-
-(defn- login-view
-  [ui-channel login]
-  [:form {:on-submit (comp (send! ui-channel (ml/->Login)) #(doto % .preventDefault))}
-   [:div.row
-    [:h3.col-xs-12 "Login"]]
-   [:div.row
-    [:label.col-md-3 "Username:"]
-    [:input {:type :text
-             :value (:username login)
-             :on-change (send-value! ui-channel #(ml/map->UsernameUpdated {:username %}))}]]
-   [:div.row
-    [:label.col-md-3 "Password:"]
-    [:input {:type :password
-             :value (:password login)
-             :on-change (send-value! ui-channel #(ml/map->PasswordUpdated {:password %}))}]]
-   [:div.row
-    [:button {:type :submit}
-     "Login"]]])
 
 (defn- server-view
   [ui-channel server-state view]
@@ -75,16 +57,26 @@
   (when-let [id (get-in view [:route-params :id])]
     (put! ui-channel (m/->FindEvent id))))
 
+(defn- header-view
+  [ui-channel app]
+  (prn app)
+  [:div.row
+   [:div.col-xs-6.col-xs-offset-3
+    [:h2 "Event Management Client"]]
+   [:div.col-xs-3
+    (if (contains? app :authorization)
+      [:a {:href (href-for :logout)} "Logout"]
+      [:a {:href (href-for :login)} "Login"])]])
+
 (defn root
   [ui-channel {:keys [event server-state login view] :as app}]
   [:div
    [:div.container
-    [:div.row
-     [:div.col-xs-12.col-xs-6.col-xs-offset-3
-      [:h2 "Event Management Client"]]]
+    (header-view ui-channel app)
     [:div.row.col-xs-12 [:br]]
     (match [(:handler view)]
-           [:login]       [login-view ui-channel login]
+           [:login]       [lv/login-view ui-channel login]
+           [:logout]      (put! ui-channel (ml/->Logout))
            [:new-event]   [event-form ui-channel event]
            [:event]       (event-lookup ui-channel view)
            [:event-found] [server-view ui-channel server-state view]

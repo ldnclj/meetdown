@@ -42,15 +42,10 @@
       (.pushState (.-history js/window) "" "event" (str "#" event-id "-event")) ; TODO Need to remove this side effect from here to view where it belongs.
       new-app)))
 
-(defn- extract-location
-  "Extract the location from the http response"
-  [response]
-  (->> response :body (reduce (remove-ns "location") {})))
-
 (extend-protocol Message
   m/CreateLocationResults
   (process-message [response app]
-    (let [location-id (:id (extract-location response))
+    (let [location-id (get-in response [:body :db/id])
           new-app  (-> app
                        (assoc-in [:view :handler] :location)
                        (assoc-in [:view :route-params :id] location-id)
@@ -68,9 +63,25 @@
                       (assoc-in [:view :handler] :event-found))]
       new-app)))
 
+(extend-protocol Message
+  m/FindLocationResults
+  (process-message [response app]
+    (let [location (:body response)
+          new-app (-> app
+                      (assoc :server-state location)
+                      (assoc-in [:view :handler] :location-found))]
+      new-app)))
+
 (extend-protocol EventSource
   m/FindEvent
   (watch-channels [{:keys [id]} app]
     (let [id       (if (string? id) (long id) id)
           rest-res (rest/find-event id)]
+      #{rest-res})))
+
+(extend-protocol EventSource
+  m/FindLocation
+  (watch-channels [{:keys [id]} app]
+    (let [id (if (string? id) (long id) id)
+          rest-res (rest/find-location id)]
       #{rest-res})))

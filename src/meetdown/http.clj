@@ -34,15 +34,20 @@
   {:get-events {:handler (fn [{:keys [db body-params]}]
                            {:body (data/get-events db)})}
 
-   :create-event {:handler (fn [{:keys [db db-conn body-params]}]
+   :create-event {:handler (fn [{:keys [db-conn body-params]}]
+                             (timbre/debug "Called create-event")
                              {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data body-params)))}})}
 
    :get-event {:handler (fn [{:keys [db body-params]}]
                           {:body (->> (get-in body-params [:txn-data :db/id])
                                       (data/to-ent db))})}
-
-   :create-location {:handler (fn [{:keys [db db-conn body-params]}]
-                             {:body {:db/id (:db/id (java.util.UUID/randomUUID))}})}})
+   :create-location {:handler (fn [{:keys [db-conn body-params]}]
+                                (let [response {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data body-params)))}}]
+                                  (timbre/debug "Location response: " response)
+                                  response))}
+   :get-location {:handler (fn [{:keys [db body-params]}]
+                             {:body (->> (get-in body-params [:txn-data :db/id])
+                                         (data/to-ent db))})}})
 
 (def user-handlers
   {:create-user {:handler (fn [{:keys [db db-conn body-params]}]
@@ -97,6 +102,13 @@
       (timbre/debug "Handling request:" req)
       (handler req))))
 
+(defn wrap-log-response
+  ([handler]
+   (fn [req]
+     (let [response (handler req)]
+       (timbre/debug "Returning response:" response)
+       response))))
+
 (defn wrap-authenticate-user [handler]
   (fn [req]
     (handler (merge req
@@ -127,7 +139,8 @@
       (wrap-restful-format :formats [:edn :transit-json])
       wrap-authenticate-user
       (wrap-db db-conn)
-      (rmd/wrap-defaults rmd/api-defaults)))
+      (rmd/wrap-defaults rmd/api-defaults)
+      wrap-log-response))
 
 
 (defrecord Server-component [server-options db-component]

@@ -19,12 +19,12 @@
 (defn create-location
   [location]
   (let [rest-location (reduce (add-ns "location") {} location)
-        location-channel (petrol/wrap m/map->CreateLocationResults
+        event-channel (petrol/wrap m/map->CreateLocationResults
                                    (http/post "/q"
                                               {:with-credentials? false
                                                :edn-params {:type :create-location
                                                             :txn-data rest-location}}))]
-    location-channel))
+    event-channel))
 
 (defn find-event
   [id]
@@ -35,4 +35,11 @@
                                                            :txn-data {:db/id id}}}))]
     post-channel))
 
-
+(defn find-location
+  [id]
+  (let [post-channel (petrol/wrap m/map->FindLocationResults
+                                  (http/post "/q"
+                                             {:with-credentials? false
+                                              :edn-params {:type :get-location
+                                                           :txn-data {:db/id id}}}))]
+    post-channel))

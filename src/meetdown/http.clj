@@ -1,6 +1,7 @@
 (ns meetdown.http
   (:require [org.httpkit.server :as http]
             [com.stuartsierra.component :as component]
+            [clojure.set :as set]
             [compojure.core :refer [routes GET POST DELETE ANY context]]
             [compojure.route :refer [resources files]]
             [hiccup.core :refer [html]]
@@ -10,48 +11,76 @@
             [meetdown.data :as data]
             [org.httpkit.server :refer [run-server]]
             [taoensso.timbre :as timbre]
-            [meetdown.auth :as auth]))
+            [meetdown.auth :as auth]
+            [ring.util.response :refer [response status]]))
+
+(defn wrap-assert-logged-in [handler]
+  (fn [{:keys [user-id] :as req}]
+    (if user-id
+      (handler req)
+
+      (-> (response :unauthenticated)
+          (status 401)))))
+
+(defn wrap-assert-user-roles [handler user-roles]
+  (fn [{req-user-roles :user-roles, :as req}]
+    (if (empty? (set/difference (set user-roles) (set req-user-roles)))
+      (handler req)
+
+      (-> (response :forbidden)
+          (status 403)))))
 
 (def auth-handlers
   ;; Auth: test with:
-  ;; curl -iXPOST http://localhost:3000/q -d "{:type :login, :user-id "james"}" -H "Content-Type: application/edn"
+  ;; eval the 'add-user!' call in the bottom of auth.clj (well, it was when I wrote this)
 
-  ;; curl -iXPOST http://localhost:3000/q -d "{:type :get-current-user}" -H "Content-Type: application/edn" -H "Authorization: <token>"
+  ;; curl -iXPOST http://localhost:8000/q -d '{:type :login, :username "james", :password "password-123"}' -H "Content-Type: application/edn"
 
-  {:get-current-user {:handler (fn [{:keys [db body-params user-id user-roles]}]
-                                 (when user-id
-                                   {:body {:user-id user-id
-                                           :user-roles user-roles}}))
-                      :user-roles #{:admin}}
+  ;; curl -iXPOST http://localhost:8000/q -d '{:type :get-current-user}' -H "Content-Type: application/edn" -H "Authorization: <token>"
 
-   ;; yes, we log *anyone* in...
-   :login {:handler (fn [{:keys [db body-params]}]
-                       {:body :logged-in
-                        :headers {"Authorization" (auth/generate-token {:user-id (:user-id body-params)
-                                                                        :user-roles #{:admin}})}})}})
+  {:get-current-user (-> (fn [{:keys [db body-params user-id user-roles]}]
+                           (when user-id
+                             {:body {:user-id user-id
+                                     :user-roles user-roles}}))
+
+                         wrap-assert-logged-in)
+
+   :login (fn [{:keys [db body-params]}]
+            (let [{:keys [username password]} body-params]
+              (if-let [{:keys [user-id username]} (auth/check-login {:username username
+                                                                     :password password}
+                                                                    {:db db})]
+                {:body {:user-id user-id
+                        :username username}
+
+                 :headers {"Authorization" (auth/generate-token {:user-id user-id
+                                                                 :user-roles #{:admin}})}}
+
+                (-> (response {:status :unauthenticated
+                               :body-params body-params})
+                    (status 401)))))})
 
 (def event-handlers
-  {:get-events {:handler (fn [{:keys [db body-params]}]
-                           {:body (data/get-events db)})}
+  {:get-events (fn [{:keys [db body-params]}]
+                 {:body (data/get-events db)})
 
-   :create-event {:handler (fn [{:keys [db db-conn body-params]}]
-                             {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data body-params)))}})}
+   :create-event (fn [{:keys [db db-conn body-params]}]
+                   {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data body-params)))}})
 
-   :get-event {:handler (fn [{:keys [db body-params]}]
-                          {:body (->> (get-in body-params [:txn-data :db/id])
-                                      (data/to-ent db))})}})
+   :get-event (fn [{:keys [db body-params]}]
+                {:body (->> (get-in body-params [:txn-data :db/id])
+                            (data/to-ent db))})})
 
 (def user-handlers
-  {:create-user {:handler (fn [{:keys [db db-conn body-params]}]
-                            {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data body-params)))}})}})
+  {:create-user (fn [{:keys [db db-conn body-params]}]
+                  {:body {:db/id (:db/id (data/create-entity db-conn (:txn-data body-params)))}})})
 
 (def all-handlers
   (merge auth-handlers event-handlers user-handlers))
 
 (defn- handle-query [req]
   (let [req-type (get-in req [:body-params :type])]
-    (if-let [handler (get-in all-handlers
-                             [req-type :handler])]
+    (if-let [handler (get all-handlers req-type)]
       (handler req)
       {:status 415 :body (str "Unsupported type - " req-type)})))
 

@@ -1,24 +1,31 @@
 (ns meetdown.data
   (:require [datomic.api :only [q db] :as d]
-            [taoensso.timbre :as timbre]))
+            [taoensso.timbre :as timbre]
+            [clojure.java.io :as io]))
 
 (timbre/refer-timbre)
 
-(defn database [db-conn] (d/db db-conn))
+(defn database [db-conn]
+  (d/db db-conn))
 
 (defn install-base-schema [conn]
   @(d/transact
-     conn (read-string (slurp "resources/schema.edn"))))
+    conn (into []
+               (mapcat (comp read-string slurp io/resource))
+               #{"schemas/user.edn"
+                 "schemas/event.edn"
+                 "schemas/location.edn"})))
 
 (defn setup-and-connect-to-db [uri]
-  (do (d/create-database uri)
-      (let [conn (d/connect uri)]
-        (install-base-schema conn)
-        conn)))
+  (d/create-database uri)
+
+  (doto (d/connect uri)
+    install-base-schema))
 
 (defn close-db []
-  (do (d/shutdown false)
-      (timbre/info "DB shut down")))
+  (d/shutdown false)
+
+  (timbre/info "DB shut down"))
 
 (defn- store-entity
   [conn data-with-id]
@@ -43,7 +50,9 @@
       {:db/id (resolve-temp-id  db-after tx) :db db-after})))
 
 (defn to-ent "Takes a db id and connection and returns the entity"
-  [db id] (when-let [entity (d/entity db id)] (d/touch entity)))
+  [db id]
+  (when-let [entity (d/entity db id)]
+    (d/touch entity)))
 
 (defn get-events [db]
   (d/pull-many db [:*]

@@ -19,6 +19,8 @@
                  [jarohen/nomad "0.8.0-beta3" :exclusions [org.clojure/clojure prismatic/schema]]
                  [com.taoensso/timbre "4.2.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]
+                 [buddy/buddy-core "0.12.1"]
+                 [buddy/buddy-hashers "0.14.0"]
                  [clj-jwt "0.1.1"]]
   :main meetdown.core
   :source-paths ["src"]

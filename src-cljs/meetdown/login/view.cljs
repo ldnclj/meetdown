@@ -27,7 +27,7 @@
     [:label.control-label.col-md-3 {:for "login-password-input"} "Password:"]
     [:div.col-md-9
      [:input.form-control { :id "login-password-input"
-                           :type :text
+                           :type :password
                            :value (:password login)
                            :on-change (send-value! ui-channel #(ml/map->PasswordUpdated {:password %}))}]]]
    [:div.input-group

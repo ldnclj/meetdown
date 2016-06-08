@@ -1,0 +1,48 @@
+#{{:db/id #db/id[:db.part/db]
+   :db/ident :event/name
+   :db/cardinality :db.cardinality/one
+   :db/valueType :db.type/string
+   :db/unique :db.unique/identity
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :event/description
+   :db/cardinality :db.cardinality/one
+   :db/valueType :db.type/string
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :event/location
+   :db/cardinality :db.cardinality/one
+   :db/valueType :db.type/ref
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :event/date
+   :db/cardinality :db.cardinality/one
+   :db/valueType :db.type/string
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :event/startTime
+   :db/cardinality :db.cardinality/one
+   :db/valueType :db.type/string
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :event/endTime
+   :db/cardinality :db.cardinality/one
+   :db/valueType :db.type/string
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :event/speaker
+   :db/cardinality :db.cardinality/one
+   :db/valueType :db.type/string
+   :db.install/_attribute :db.part/db}
+
+  {:db/id #db/id[:db.part/db]
+   :db/ident :event/attendees
+   :db/cardinality :db.cardinality/many
+   :db/valueType :db.type/ref
+   :db.install/_attribute :db.part/db}}

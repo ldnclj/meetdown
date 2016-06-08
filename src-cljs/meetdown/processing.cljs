@@ -12,8 +12,8 @@
 
 (extend-protocol EventSource
   m/CreateEvent
-  (watch-channels [_ {:keys [event] :as app}]
-    #{(rest/create-event event)}))
+  (watch-channels [_ {:keys [event authorization] :as app}]
+    #{(rest/create-event event authorization)}))
 
 (extend-protocol EventSource
   m/CreateLocation

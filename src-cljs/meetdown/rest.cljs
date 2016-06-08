@@ -7,11 +7,12 @@
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defn create-event
-  [event]
+  [event authorization]
   (let [rest-event (reduce (add-ns "event") {} event)
         event-channel (petrol/wrap m/map->CreateEventResults
                                    (http/post "/q"
                                               {:with-credentials? false
+                                               :headers {"Authorization" authorization}
                                                :edn-params {:type :create-event
                                                             :txn-data rest-event}}))]
     event-channel))

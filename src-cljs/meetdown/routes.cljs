@@ -8,7 +8,7 @@
             "logout"      :logout
             "newevent"    :new-event
             [:id "-event"] :event
-            "test"        :test}}])
+            "newlocation" :new-location}}])
 
 (extend-protocol Message
   UrlHistoryEvent

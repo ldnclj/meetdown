@@ -169,20 +169,25 @@
       wrap-log-response))
 
 
-(defrecord Server-component [server-options db-component]
+(defrecord Server-component [server-options db-component web-server]
   component/Lifecycle
-  (start [component]
-    (timbre/info "Starting http-kit for" server-options)
-    (let [server (http/run-server (make-handler (:connection db-component)) server-options)]
-      (assoc component :web-server server)))
-  (stop [component]
+  (start [this]
+    (if (:web-server this) ;; make start idempotent
+      this
+      (do
+        (timbre/info "Starting http-kit for" server-options)
+        (let [server (http/run-server (make-handler (:connection db-component)) server-options)]
+          (assoc this :web-server server)))))
+  (stop [this]
     (timbre/info "Shutting down http-kit")
-    (let [server (:web-server component)]
-      (server :timeout 100))
-    (-> component
-        (assoc :web-server nil)
-        (assoc :db-component nil)
-        (assoc :server-options nil))))
+    (let [server (:web-server this)]
+      (if server ;; make stop idempotent
+        (do
+          (server :timeout 100)
+          (-> this
+              (assoc :web-server nil)
+              (assoc :db-component nil)))
+        this))))
 
 (defn new-server [server-options]
   (map->Server-component {:server-options server-options}))

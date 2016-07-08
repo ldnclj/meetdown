@@ -9,9 +9,11 @@
 (def system nil)
 
 (defn init []
-  (alter-var-root #'system
-                  (constantly (app/meetdown-system {:dburi "datomic:mem://meetdown"
-                                                    :server {:port server-port-num}}))))
+  (if system
+    #'system
+    (alter-var-root #'system
+                    (constantly (app/meetdown-system {:dburi "datomic:mem://meetdown"
+                                                      :server-options {:port server-port-num}})))))
 
 (defn start []
   (alter-var-root #'system component/start))

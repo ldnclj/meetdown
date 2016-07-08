@@ -20,25 +20,30 @@
 (defrecord Datomic-connection-component [dburi connection]
   component/Lifecycle
   (start [component]
-    (timbre/info "Starting Datomic connection for" dburi)
-    (let [conn (d/setup-and-connect-to-db dburi)]
-      (assoc component :connection conn)))
+    (if (:connection component) ;; make start idempotent
+      component
+      (do
+       (timbre/info "Starting Datomic connection for" dburi)
+       (let [conn (d/setup-and-connect-to-db dburi)]
+         (assoc component :connection conn)))))
   (stop [component]
-    (timbre/info "Stopping Datomic connection")
-    (d/close-db)
-    (-> component
-        (assoc :connection nil)
-        (assoc :dburi nil))))
+    (if (:connection component) ;; make stop idempotent
+      (do
+        (timbre/info "Stopping Datomic connection")
+        (d/close-db)
+        (-> component
+            (assoc :connection nil)))
+      component)))
 
 (defn new-database [dburi]
   (map->Datomic-connection-component {:dburi dburi}))
 
 (defn meetdown-system [config]
-  (let [{:keys [dburi server]} config]
+  (let [{:keys [dburi server-options]} config]
     (component/system-map
      :db-component  (new-database dburi)
      :app           (component/using
-                     (h/new-server server)
+                     (h/new-server server-options)
                      [:db-component]))))
 
 (defn -main []

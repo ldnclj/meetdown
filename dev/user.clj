@@ -13,7 +13,7 @@
     #'system
     (alter-var-root #'system
                     (constantly (app/meetdown-system {:dburi "datomic:mem://meetdown"
-                                                      :server-options {:port server-port-num}})))))
+                                                      :server {:port server-port-num}})))))
 
 (defn start []
   (alter-var-root #'system component/start))

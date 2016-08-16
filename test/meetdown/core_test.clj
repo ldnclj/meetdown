@@ -26,6 +26,10 @@
 
 (comment
   (def system (atom (component/start (meetdown-system {:dburi "datomic:mem://new" :server {:port 4000}}))))
+
+  (get-in @system [:app :server-options])
+  (:app @system)
+
   (swap! system component/stop)
   (component/stop (-main))
 

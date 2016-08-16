@@ -39,11 +39,11 @@
   (map->Datomic-connection-component {:dburi dburi}))
 
 (defn meetdown-system [config]
-  (let [{:keys [dburi server-options]} config]
+  (let [{:keys [dburi server]} config]
     (component/system-map
      :db-component  (new-database dburi)
      :app           (component/using
-                     (h/new-server server-options)
+                     (h/new-server server)
                      [:db-component]))))
 
 (defn -main []

@@ -194,8 +194,10 @@
 
 (comment
 
-  (data/create-entity (user/system :db-conn) (:txn-data {:event/name "New event-2"}))
+  (def conn (get-in user/system [:db-component :connection]))
+  (data/create-entity conn {:event/name "New event-2"})
 
-  (data/create-entity (user/system :db-conn) (:txn-data req-body))
+  (data/get-events (data/database conn))
+
 
   )

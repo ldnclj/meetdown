@@ -12,7 +12,7 @@ pom.xml.asc
 /resources/public/js/compiled/*
 /resources/private/js
 /out
-.*
+.cljs*
 figwheel_server.log
 !/resources/.gitignore
 TAGS
